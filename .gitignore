@@ -9,6 +9,9 @@ __pycache__/
 dist/
 build/
 
+#Hoja de requerimientos
+REQ_D1_usuarios.md
+
 # Entorno virtual
 env/
 venv/

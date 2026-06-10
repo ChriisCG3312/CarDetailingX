@@ -44,18 +44,20 @@ class LogoutView(LoginRequiredMixin, View):
         messages.info(request, 'Sesión cerrada correctamente.')
         return redirect('usuarios:login')
 
-
 class RegistroView(CreateView):
-    """Registro público de nuevos clientes."""
-    model = Usuario
     form_class = RegistroUsuarioForm
-    template_name = 'usuarios/registro.html'
-    success_url = reverse_lazy('usuarios:login')
+    template_name = "usuarios/registro.html"
+    success_url = reverse_lazy("usuarios:login")
 
     def form_valid(self, form):
-        messages.success(self.request, 'Cuenta creada. Ya puedes iniciar sesión.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
 
+        messages.success(
+            self.request,
+            "Cuenta creada correctamente. Ahora puedes iniciar sesión."
+        )
+
+        return response
 
 # ── CRUD de Usuarios (solo Admin) ─────────────────────────────────────────────
 
