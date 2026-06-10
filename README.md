@@ -29,12 +29,22 @@ detailing_project/
 
 ### 1. Clonar el repositorio
 
-Dentro de la carpeta que usarás para el proyecto
+Dentro de la carpeta que usarás para el proyecto:
 
 ```bash
 cd ruta/tu_carpeta
 git clone https://github.com/ChriisCG3312/CarDetailingX.git
 ```
+
+### Iniciar tu rama de trabajo
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/tu-modulo
+```
+
+Tus archivos deberían de haber cambiado, sino, informa al dueño del repositorio.
 
 ### 2. Crear y activar entorno virtual
 
@@ -53,9 +63,8 @@ pip install -r requirements.txt
 ### 4. Configurar variables de entorno
 
 ```bash
-cp .env.example .env
+copy .env.example .env
 # Abre .env y edita los valores de DB_NAME, DB_USER, DB_PASSWORD
-# Usa tu propia base de datos. No se usarán en el repositorio final.
 ```
 
 ### 5. Crear la base de datos en PostgreSQL
@@ -97,14 +106,6 @@ Accede en: http://127.0.0.1:8000/
 | `feature/servicios-promo` | Módulo D2 |
 | `feature/citas-pago` | Módulo D3 |
 | `feature/seguimiento-notif` | Módulo D4 |
-
-### Iniciar tu rama de trabajo
-
-```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/tu-modulo
-```
 
 ### Convención de commits
 
