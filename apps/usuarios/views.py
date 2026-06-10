@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, View
 
@@ -17,25 +17,59 @@ from apps.usuarios.mixins import AdminRequiredMixin
 
 # ── Autenticación ──────────────────────────────────────────────────────────────
 
+
 class LoginView(View):
-    """Vista de inicio de sesión."""
-    template_name = 'usuarios/login.html'
+    template_name = "usuarios/login.html"
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('dashboard:home')
-        from django.shortcuts import render
-        return render(request, self.template_name, {'form': LoginForm()})
+            return redirect("dashboard:home")
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": LoginForm(),
+                "next": request.GET.get("next", ""),
+            }
+        )
+    def _registrar_intento_fallido(self, request):
+        intentos = request.session.get("login_attempts", 0) + 1
+
+        request.session["login_attempts"] = intentos
+
+        if intentos >= 5:
+            messages.warning(
+                request,
+                "Has tenido varios intentos fallidos de inicio de sesión."
+        )
 
     def post(self, request):
-        from django.shortcuts import render
         form = LoginForm(request, data=request.POST)
+
         if form.is_valid():
             login(request, form.get_user())
-            messages.success(request, f'Bienvenido, {form.get_user().first_name or form.get_user().username}.')
-            return redirect(request.GET.get('next', 'dashboard:home'))
-        return render(request, self.template_name, {'form': form})
+            request.session["login_attempts"] = 0
 
+            messages.success(
+                request,
+                f"Bienvenido, {form.get_user().first_name or form.get_user().username}."
+            )
+
+            return redirect(
+                request.POST.get("next") or "dashboard:home"
+            )
+
+        self._registrar_intento_fallido(request)
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "next": request.POST.get("next", ""),
+            }
+        )
 
 class LogoutView(LoginRequiredMixin, View):
     """Vista de cierre de sesión."""

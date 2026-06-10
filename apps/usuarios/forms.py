@@ -1,24 +1,67 @@
 """Formularios de autenticación y registro de usuarios."""
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import authenticate
 from .models import Usuario
 from django.core.exceptions import ValidationError
 
 
 
+
 class LoginForm(AuthenticationForm):
-    """Formulario de inicio de sesión con estilos Bootstrap."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.label
-
     username = forms.CharField(
-        label='Usuario o correo',
-        widget=forms.TextInput(attrs={'autofocus': True}),
+        label="Usuario o correo",
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        )
     )
+
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control"}
+        )
+    )
+
+    error_messages = {
+        "invalid_login": "Credenciales incorrectas",
+        "inactive": "Tu cuenta está desactivada. Contacta al administrador",
+    }
+
+    def clean(self):
+        usuario_input = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        if usuario_input and password:
+
+            usuario = Usuario.objects.filter(
+                email__iexact=usuario_input
+            ).first()
+
+            if usuario is None:
+                usuario = Usuario.objects.filter(
+                    username=usuario_input
+                ).first()
+
+            if usuario and not usuario.is_active:
+                raise forms.ValidationError(
+                    "Tu cuenta está desactivada. Contacta al administrador"
+                )
+
+            username = usuario.username if usuario else usuario_input
+
+            self.user_cache = authenticate(
+                self.request,
+                username=username,
+                password=password,
+            )
+
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    "Usuario o contraseña incorrectos"
+                )
+
+        return self.cleaned_data
 
 class RegistroUsuarioForm(UserCreationForm):
     email = forms.EmailField(
