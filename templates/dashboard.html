@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block titulo %}Dashboard{% endblock %}
+
+{% block contenido %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h1 class="h3 mb-0">
+      Bienvenido, {{ usuario.first_name|default:usuario.username }}
+      <span class="badge bg-secondary fs-6 ms-2">{{ usuario.get_rol_display }}</span>
+    </h1>
+  </div>
+</div>
+
+<!-- ── Tarjetas de acceso rápido según rol ─────────────────────────────── -->
+
+{% if usuario.es_admin %}
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="card border-0 bg-primary text-white h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-people-fill fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Usuarios</div>
+          {# D1: reemplazar con {{ total_usuarios }} #}
+          <a href="{% url 'usuarios:lista' %}" class="text-white-50 small">Ver todos →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card border-0 bg-success text-white h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-stars fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Servicios</div>
+          <a href="{% url 'servicios:admin_lista' %}" class="text-white-50 small">Gestionar →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card border-0 bg-warning text-dark h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-calendar3 fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Agenda</div>
+          {# D3: reemplazar con citas de hoy #}
+          <a href="{% url 'citas:lista' %}" class="text-dark-50 small">Ver agenda →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card border-0 bg-info text-dark h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-clipboard2-check fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Seguimiento</div>
+          <a href="{% url 'seguimiento:lista' %}" class="text-dark-50 small">Ver activos →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if usuario.es_cliente %}
+<div class="row g-3 mb-4">
+  <div class="col-sm-6">
+    <div class="card border-0 bg-primary text-white h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-calendar-plus fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Agendar cita</div>
+          <a href="{% url 'citas:crear' %}" class="text-white-50 small">Nueva cita →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card border-0 bg-secondary text-white h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-car-front fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Mis vehículos</div>
+          <a href="{% url 'citas:vehiculos' %}" class="text-white-50 small">Ver vehículos →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if usuario.es_tecnico %}
+<div class="row g-3 mb-4">
+  <div class="col-sm-6">
+    <div class="card border-0 bg-info text-dark h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-wrench-adjustable fs-1"></i>
+        <div>
+          <div class="fs-5 fw-bold">Mis servicios activos</div>
+          <a href="{% url 'seguimiento:lista' %}" class="text-dark-50 small">Ver asignados →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Sección a completar por cada dev ───────────────────────────────── -->
+<div class="alert alert-secondary" role="alert">
+  <i class="bi bi-info-circle me-1"></i>
+  <strong>Para desarrolladores:</strong> Este dashboard es el punto central.
+  Descomenta los bloques de contexto en <code>apps/usuarios/urls_dashboard.py</code>
+  para añadir contadores y listas de tu módulo.
+</div>
+{% endblock %}

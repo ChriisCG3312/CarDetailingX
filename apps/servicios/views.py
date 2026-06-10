@@ -1,0 +1,117 @@
+"""
+Vistas del módulo de Servicios y Promociones.
+Responsable: D2
+"""
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+
+from .models import Servicio, Promocion
+from .forms import ServicioForm, PromocionForm
+from apps.usuarios.mixins import AdminRequiredMixin, LoginRequiredMixin
+
+
+# ── Servicios ─────────────────────────────────────────────────────────────────
+
+class ServicioListView(ListView):
+    """Vista pública del catálogo de servicios (accesible sin login)."""
+    model = Servicio
+    template_name = 'servicios/lista.html'
+    context_object_name = 'servicios'
+
+    def get_queryset(self):
+        return Servicio.objects.filter(activo=True)
+
+
+class ServicioAdminListView(AdminRequiredMixin, ListView):
+    """Lista de servicios para el administrador (incluye inactivos)."""
+    model = Servicio
+    template_name = 'servicios/admin_lista.html'
+    context_object_name = 'servicios'
+
+
+class ServicioCreateView(AdminRequiredMixin, CreateView):
+    model = Servicio
+    form_class = ServicioForm
+    template_name = 'servicios/form.html'
+    success_url = reverse_lazy('servicios:admin_lista')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Nuevo servicio'
+        return ctx
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Servicio creado correctamente.')
+        return super().form_valid(form)
+
+
+class ServicioUpdateView(AdminRequiredMixin, UpdateView):
+    model = Servicio
+    form_class = ServicioForm
+    template_name = 'servicios/form.html'
+    success_url = reverse_lazy('servicios:admin_lista')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = f'Editar: {self.object.nombre}'
+        return ctx
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Servicio actualizado.')
+        return super().form_valid(form)
+
+
+class ServicioDeleteView(AdminRequiredMixin, DeleteView):
+    model = Servicio
+    template_name = 'servicios/confirmar_eliminar.html'
+    success_url = reverse_lazy('servicios:admin_lista')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Servicio eliminado.')
+        return super().form_valid(form)
+
+
+# ── Promociones ───────────────────────────────────────────────────────────────
+
+class PromocionListView(AdminRequiredMixin, ListView):
+    model = Promocion
+    template_name = 'servicios/promociones_lista.html'
+    context_object_name = 'promociones'
+
+
+class PromocionCreateView(AdminRequiredMixin, CreateView):
+    model = Promocion
+    form_class = PromocionForm
+    template_name = 'servicios/promocion_form.html'
+    success_url = reverse_lazy('servicios:promociones')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Nueva promoción'
+        return ctx
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Promoción creada.')
+        return super().form_valid(form)
+
+
+class PromocionUpdateView(AdminRequiredMixin, UpdateView):
+    model = Promocion
+    form_class = PromocionForm
+    template_name = 'servicios/promocion_form.html'
+    success_url = reverse_lazy('servicios:promociones')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Promoción actualizada.')
+        return super().form_valid(form)
+
+
+class PromocionDeleteView(AdminRequiredMixin, DeleteView):
+    model = Promocion
+    template_name = 'servicios/confirmar_eliminar.html'
+    success_url = reverse_lazy('servicios:promociones')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Promoción eliminada.')
+        return super().form_valid(form)
