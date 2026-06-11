@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from .models import Usuario
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
-
+import os
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -110,7 +110,7 @@ class RegistroUsuarioForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data["email"]
 
-        if Usuario.objects.filter(email=email).exists():
+        if Usuario.objects.filter(email__iexact=email).exists():
             raise ValidationError(
                 "Ya existe una cuenta con este correo"
             )
@@ -143,6 +143,7 @@ class RegistroUsuarioForm(UserCreationForm):
                 )
 
         return cleaned_data
+    
 
     def save(self, commit=True):
         usuario = super().save(commit=False)
@@ -167,6 +168,27 @@ class UsuarioAdminEditForm(forms.ModelForm):
             for field in ('username', 'first_name', 'last_name', 'email', 'telefono')
         }
 
+    def clean_foto(self):
+        foto = self.cleaned_data.get('foto')
+
+        if not foto:
+            return foto
+
+        extensiones = ['.jpg', '.jpeg', '.png', '.webp']
+        extension = os.path.splitext(foto.name)[1].lower()
+
+        if extension not in extensiones:
+            raise ValidationError(
+                'Solo se permiten imágenes JPG, PNG o WEBP.'
+            )
+
+        if foto.size > 2 * 1024 * 1024:
+            raise ValidationError(
+                'La imagen no puede superar los 2 MB.'
+            )
+
+        return foto
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

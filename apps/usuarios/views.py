@@ -142,12 +142,17 @@ class UsuarioCreateView(AdminRequiredMixin, CreateView):
         messages.success(self.request, 'Usuario creado correctamente.')
         return super().form_valid(form)
 
-
 class UsuarioUpdateView(AdminRequiredMixin, UpdateView):
     model = Usuario
     form_class = UsuarioAdminEditForm
     template_name = 'usuarios/form.html'
     success_url = reverse_lazy('usuarios:lista')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.object.pk == self.request.user.pk:
+            form.fields['rol'].disabled = True
+        return form
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -164,6 +169,22 @@ class UsuarioDeleteView(AdminRequiredMixin, DeleteView):
     template_name = 'usuarios/confirmar_eliminar.html'
     success_url = reverse_lazy('usuarios:lista')
 
-    def form_valid(self, form):
-        messages.success(self.request, 'Usuario eliminado.')
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object == request.user:
+            messages.error(
+                request,
+                'No puedes desactivar tu propia cuenta.'
+            )
+            return redirect('usuarios:lista')
+
+        self.object.is_active = False
+        self.object.save()
+
+        messages.success(
+            request,
+            'Usuario desactivado correctamente.'
+        )
+
+        return redirect(self.success_url)
