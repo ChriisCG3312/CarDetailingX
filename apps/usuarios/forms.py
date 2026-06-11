@@ -4,8 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate
 from .models import Usuario
 from django.core.exceptions import ValidationError
-
-
+from django.contrib.auth.password_validation import validate_password
 
 
 class LoginForm(AuthenticationForm):
@@ -156,8 +155,8 @@ class RegistroUsuarioForm(UserCreationForm):
 
         return usuario
 
-class UsuarioAdminForm(forms.ModelForm):
-    """Formulario para que el Admin cree/edite cualquier usuario."""
+class UsuarioAdminEditForm(forms.ModelForm):
+    """Formulario para que el Admin edite cualquier usuario."""
 
     class Meta:
         model = Usuario
@@ -170,7 +169,84 @@ class UsuarioAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            if not hasattr(field.widget, 'attrs'):
-                continue
-            field.widget.attrs.setdefault('class', 'form-control')
+
+        for nombre, field in self.fields.items():
+
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.setdefault(
+                    'class',
+                    'form-check-input'
+                )
+
+            elif hasattr(field.widget, 'attrs'):
+                field.widget.attrs.setdefault(
+                    'class',
+                    'form-control'
+                )
+
+class UsuarioAdminCreateForm(UsuarioAdminEditForm):
+    password1 = forms.CharField(
+        label='Contraseña',
+        widget=forms.PasswordInput(
+            attrs={'class': 'form-control'}
+        )
+    )
+
+    password2 = forms.CharField(
+        label='Confirmar contraseña',
+        widget=forms.PasswordInput(
+            attrs={'class': 'form-control'}
+        )
+    )
+
+    class Meta(UsuarioAdminEditForm.Meta):
+        fields = UsuarioAdminEditForm.Meta.fields + (
+            'password1',
+            'password2',
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        rol = cleaned_data.get('rol')
+        telefono = cleaned_data.get('telefono')
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+
+        if rol in (
+            Usuario.Rol.ADMIN,
+            Usuario.Rol.TECNICO,
+        ) and not telefono:
+            self.add_error(
+                'telefono',
+                'El teléfono es obligatorio para administradores y técnicos.'
+            )
+
+        if password1 != password2:
+            self.add_error(
+                'password2',
+                'Las contraseñas no coinciden.'
+            )
+
+        if password1:
+            try:
+                validate_password(password1)
+            except ValidationError as e:
+                self.add_error(
+                    'password1',
+                    e
+                )
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        usuario = super().save(commit=False)
+
+        usuario.set_password(
+            self.cleaned_data['password1']
+        )
+
+        if commit:
+            usuario.save()
+
+        return usuario

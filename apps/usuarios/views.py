@@ -9,8 +9,8 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, View
-
-from .forms import LoginForm, RegistroUsuarioForm, UsuarioAdminForm
+from django.db.models import Q
+from .forms import LoginForm, RegistroUsuarioForm, UsuarioAdminCreateForm, UsuarioAdminEditForm
 from .models import Usuario
 from apps.usuarios.mixins import AdminRequiredMixin
 
@@ -103,21 +103,33 @@ class UsuarioListView(AdminRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+
         rol = self.request.GET.get('rol')
+        busqueda = self.request.GET.get('q')
+
         if rol:
             qs = qs.filter(rol=rol)
+
+        if busqueda:
+            qs = qs.filter(
+                Q(first_name__icontains=busqueda) |
+                Q(last_name__icontains=busqueda) |
+                Q(email__icontains=busqueda)
+            )
+
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['roles'] = Usuario.Rol.choices
         ctx['rol_activo'] = self.request.GET.get('rol', '')
+        ctx['q'] = self.request.GET.get('q', '')
         return ctx
 
 
 class UsuarioCreateView(AdminRequiredMixin, CreateView):
     model = Usuario
-    form_class = UsuarioAdminForm
+    form_class = UsuarioAdminCreateForm
     template_name = 'usuarios/form.html'
     success_url = reverse_lazy('usuarios:lista')
 
@@ -133,7 +145,7 @@ class UsuarioCreateView(AdminRequiredMixin, CreateView):
 
 class UsuarioUpdateView(AdminRequiredMixin, UpdateView):
     model = Usuario
-    form_class = UsuarioAdminForm
+    form_class = UsuarioAdminEditForm
     template_name = 'usuarios/form.html'
     success_url = reverse_lazy('usuarios:lista')
 
