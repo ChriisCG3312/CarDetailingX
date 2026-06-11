@@ -89,6 +89,10 @@ class Cita(models.Model):
 
     def __str__(self):
         return f'Cita #{self.pk} — {self.cliente} | {self.servicio} | {self.fecha_hora:%d/%m/%Y %H:%M}'
+    
+    @property
+    def puede_confirmarse(self):
+        return self.estado == self.Estado.PENDIENTE
 
     @property
     def puede_cancelarse(self):

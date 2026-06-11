@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Confirmar cita{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-5">
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 text-center">
+
+          <div class="mb-3">
+            <i class="bi bi-check-circle text-primary" style="font-size: 2.5rem;"></i>
+          </div>
+
+          <h2 class="h4 mb-1">¿Confirmar esta cita?</h2>
+          <p class="text-muted mb-4">Se notificará al cliente automáticamente.</p>
+
+          <ul class="list-group list-group-flush text-start mb-4">
+            <li class="list-group-item px-0">
+              <span class="text-muted small">Cliente</span>
+              <div class="fw-semibold">{{ object.cliente.get_full_name|default:object.cliente.username }}</div>
+            </li>
+            <li class="list-group-item px-0">
+              <span class="text-muted small">Servicio</span>
+              <div class="fw-semibold">{{ object.servicio }}</div>
+            </li>
+            <li class="list-group-item px-0">
+              <span class="text-muted small">Vehículo</span>
+              <div class="fw-semibold">{{ object.vehiculo }}</div>
+            </li>
+            <li class="list-group-item px-0">
+              <span class="text-muted small">Fecha y hora</span>
+              <div class="fw-semibold">{{ object.fecha_hora|date:"d/m/Y H:i" }}</div>
+            </li>
+          </ul>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="{% url 'citas:lista' %}" class="btn btn-outline-secondary">
+                Volver
+              </a>
+              <button type="submit" class="btn btn-primary">
+                Sí, confirmar cita
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
