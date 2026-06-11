@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar pago{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{% url 'citas:lista' %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0">Registrar pago</h1>
+      </div>
+
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3">
+
+              <div class="col-12">
+                <label for="{{ form.cita.id_for_label }}" class="form-label">Cita</label>
+                {{ form.cita }}
+                {% if form.cita.errors %}
+                  <div class="invalid-feedback d-block">{{ form.cita.errors.0 }}</div>
+                {% endif %}
+                <div class="form-text">Solo se muestran citas terminadas sin pago registrado.</div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label for="{{ form.monto.id_for_label }}" class="form-label">Monto pagado</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  {{ form.monto }}
+                </div>
+                {% if form.monto.errors %}
+                  <div class="invalid-feedback d-block">{{ form.monto.errors.0 }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label for="{{ form.metodo.id_for_label }}" class="form-label">Método de pago</label>
+                {{ form.metodo }}
+                {% if form.metodo.errors %}
+                  <div class="invalid-feedback d-block">{{ form.metodo.errors.0 }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-12">
+                <label for="{{ form.referencia.id_for_label }}" class="form-label">
+                  Referencia / Folio <span class="text-muted small">(opcional)</span>
+                </label>
+                {{ form.referencia }}
+                {% if form.referencia.errors %}
+                  <div class="invalid-feedback d-block">{{ form.referencia.errors.0 }}</div>
+                {% endif %}
+              </div>
+
+              {% if form.non_field_errors %}
+                <div class="col-12">
+                  <div class="alert alert-danger py-2">
+                    {% for error in form.non_field_errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'citas:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">Registrar pago</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

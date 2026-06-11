@@ -51,3 +51,27 @@ class PagoForm(forms.ModelForm):
             'metodo': forms.Select(attrs={'class': 'form-select'}),
             'referencia': forms.TextInput(attrs={'class': 'form-control'}),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # solo citas terminadas sin pago previo (RF-07)
+        self.fields['cita'].queryset = (
+            Cita.objects
+            .filter(estado=Cita.Estado.TERMINADA, pago__isnull=True)
+            .select_related('cliente', 'vehiculo', 'servicio')
+        )
+
+    def clean_cita(self):
+        cita = self.cleaned_data.get('cita')
+        if not cita:
+            return cita
+        if cita.estado != Cita.Estado.TERMINADA:
+            raise forms.ValidationError("Solo puedes registrar el pago de citas terminadas")
+        if hasattr(cita, 'pago'):
+            raise forms.ValidationError("Esta cita ya tiene un pago registrado")
+        return cita
+
+    def clean_monto(self):
+        monto = self.cleaned_data.get('monto')
+        if monto is not None and monto <= 0:
+            raise forms.ValidationError("El monto debe ser mayor a $0")
+        return monto
