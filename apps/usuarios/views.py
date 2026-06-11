@@ -17,7 +17,6 @@ from apps.usuarios.mixins import AdminRequiredMixin
 
 # ── Autenticación ──────────────────────────────────────────────────────────────
 
-
 class LoginView(View):
     template_name = "usuarios/login.html"
 
@@ -125,7 +124,6 @@ class UsuarioListView(AdminRequiredMixin, ListView):
         ctx['rol_activo'] = self.request.GET.get('rol', '')
         ctx['q'] = self.request.GET.get('q', '')
         return ctx
-
 
 class UsuarioCreateView(AdminRequiredMixin, CreateView):
     model = Usuario

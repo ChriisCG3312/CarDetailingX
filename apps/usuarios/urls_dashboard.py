@@ -3,6 +3,8 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
+from apps.usuarios.models import Usuario
+
 app_name = 'dashboard'
 
 
@@ -14,7 +16,8 @@ def home(request):
     o crear sub-dashboards en su propia app y redirigir desde aquí.
     """
     context = {
-        'usuario': request.user,
+        "usuario": request.user,
+        "total_usuarios": Usuario.objects.count(),
     }
 
     # D1: añadir stats de usuarios cuando el módulo esté listo
