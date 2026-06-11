@@ -22,6 +22,9 @@ class RolRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return user.rol == self.rol_requerido or user.is_superuser
 
     def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+
         messages.error(self.request, self.mensaje_denegado)
         return redirect('dashboard:home')
 
