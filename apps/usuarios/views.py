@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, View
 from django.db.models import Q
@@ -163,6 +163,38 @@ class UsuarioUpdateView(AdminRequiredMixin, UpdateView):
         messages.success(self.request, 'Usuario actualizado.')
         return super().form_valid(form)
 
+class UsuarioReactivateView(AdminRequiredMixin, View):
+    template_name = 'usuarios/confirmar_reactivar.html'
+
+    def get(self, request, pk):
+        usuario = get_object_or_404(
+            Usuario,
+            pk=pk
+        )
+
+        return render(
+            request,
+            self.template_name,
+            {
+                'object': usuario,
+            }
+        )
+
+    def post(self, request, pk):
+        usuario = get_object_or_404(
+            Usuario,
+            pk=pk
+        )
+
+        usuario.is_active = True
+        usuario.save()
+
+        messages.success(
+            request,
+            'Usuario reactivado correctamente.'
+        )
+
+        return redirect('usuarios:lista')
 
 class UsuarioDeleteView(AdminRequiredMixin, DeleteView):
     model = Usuario

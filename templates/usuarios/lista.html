@@ -48,13 +48,25 @@
             <span class="badge bg-danger">Inactivo</span>
             {% endif %}
           </td>
-          <td class="d-flex gap-1">
-            <a href="{% url 'usuarios:editar' u.pk %}" class="btn btn-sm btn-outline-dark">
-              <i class="bi bi-pencil"></i>
-            </a>
-            <a href="{% url 'usuarios:eliminar' u.pk %}" class="btn btn-sm btn-outline-danger">
-              <i class="bi bi-person-dash"></i>
-            </a>
+            <td class="d-flex gap-1">
+              <a href="{% url 'usuarios:editar' u.pk %}"
+                class="btn btn-sm btn-outline-dark">
+                  <i class="bi bi-pencil"></i>
+              </a>
+
+              {% if u.is_active %}
+                  <a href="{% url 'usuarios:eliminar' u.pk %}"
+                    class="btn btn-sm btn-outline-danger"
+                    title="Desactivar">
+                      <i class="bi bi-person-dash"></i>
+                  </a>
+              {% else %}
+                  <a href="{% url 'usuarios:reactivar' u.pk %}"
+                    class="btn btn-sm btn-outline-success"
+                    title="Reactivar">
+                      <i class="bi bi-person-check"></i>
+                  </a>
+              {% endif %}
           </td>
         </tr>
         {% empty %}
