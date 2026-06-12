@@ -30,12 +30,10 @@ LOCAL_APPS = [
     'apps.usuarios',
     'apps.servicios',
     'apps.citas',
-    'apps.seguimiento',
-]
-
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS [
     'apps.seguimiento.apps.SeguimientoConfig',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
     
 # Modelo de usuario personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
