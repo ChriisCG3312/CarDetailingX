@@ -32,10 +32,16 @@
                         <div class="text-end">
                             <span class="text-muted d-block small">Precio</span>
                             {% if servicio.precio != servicio.precio_con_promocion %}
-                                <span class="text-decoration-line-through text-danger small">${{ servicio.precio }}</span>
-                                <span class="text-success d-block fw-bold fs-5">${{ servicio.precio_con_promocion }} MXN</span>
+                            <span class="text-danger text-decoration-line-through d-block mb-1" style="font-size: 20px">
+                            ${{ servicio.precio }}
+                            </span>
+                            <span class="text-success fw-bold fs-5 d-block">
+                                ${{ servicio.precio_con_promocion }} MXN
+                            </span>
                             {% else %}
-                                <span class="text-success fw-bold fs-5">${{ servicio.precio }} MXN</span>
+                            <span class="text-success fw-bold fs-5 d-block">
+                                ${{ servicio.precio }} MXN
+                            </span>
                             {% endif %}
                         </div>
                     </div>
