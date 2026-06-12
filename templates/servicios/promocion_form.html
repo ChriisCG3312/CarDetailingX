@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="mb-3">
+                <a href="{% url 'servicios:promociones' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Regresar a Promociones
+                </a>
+            </div>
+
+            <div class="card shadow bg-dark text-white border-secondary">
+                <div class="card-header border-secondary table-secondary py-3">
+                    <h4 class="mb-0 m-0 text-white">
+                        <i class="bi bi-tag-fill text-danger"></i> 
+                        {% if object %} Editar Promoción {% else %} Crear Nueva Promoción {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Aquí Django pintará automáticamente los campos, incluyendo un <select> con los servicios que ya guardaste -->
+                        {% include "partials/_form_card.html" %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'servicios:promociones' %}" class="btn btn-secondary me-md-2">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-check-circle"></i> Guardar Promoción
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
