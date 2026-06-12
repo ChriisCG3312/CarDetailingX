@@ -8,12 +8,18 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView, View
 
 from .models import Cita, Vehiculo, Pago
 from .forms import CitaForm, VehiculoForm, PagoForm
 from apps.usuarios.mixins import AdminRequiredMixin, ClienteRequiredMixin
 
+from django.http import JsonResponse
+from datetime import date
+
+from django.http import JsonResponse
+from datetime import date as date_type
+from django.utils import timezone
 
 # ── Vehículos ─────────────────────────────────────────────────────────────────
 
@@ -120,6 +126,18 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
         ctx = super().get_context_data(**kwargs)
         ctx['titulo'] = 'Agendar cita'
         return ctx
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Agendar cita'
+        ctx['hoy'] = timezone.localdate()
+        return ctx
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Agendar cita'
+        ctx['hoy'] = timezone.localdate()  # <-- agrega esta línea
+        return ctx
 
 
 class CitaUpdateView(AdminRequiredMixin, UpdateView):
@@ -224,4 +242,54 @@ class AgendaHoyView(AdminRequiredMixin, TemplateView):
             .order_by('fecha_hora')
         )
         ctx['hoy'] = hoy
-        return ctx
+        return ctx 
+
+# API: horarios disponibles por día    
+class HorariosDisponiblesView(LoginRequiredMixin, View):
+    """
+    GET /citas/api/horarios/?fecha=2026-06-15
+    Devuelve los slots del día con su disponibilidad.
+    """
+    http_method_names = ['get']
+
+    SLOTS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+    def get(self, request):
+        fecha_str = request.GET.get('fecha')
+        if not fecha_str:
+            return JsonResponse({'error': 'Falta el parámetro fecha'}, status=400)
+
+        try:
+            fecha = date_type.fromisoformat(fecha_str)
+        except ValueError:
+            return JsonResponse({'error': 'Fecha inválida'}, status=400)
+
+        hoy = timezone.localdate()
+        if fecha < hoy or fecha.weekday() == 6:
+            return JsonResponse({'slots': []})
+
+        citas_del_dia = (
+            Cita.objects
+            .filter(fecha_hora__date=fecha)
+            .exclude(estado=Cita.Estado.CANCELADA)
+            .values_list('fecha_hora', flat=True)
+        )
+
+        horas_ocupadas = set()
+        for dt in citas_del_dia:
+            hora_local = timezone.localtime(dt).hour
+            horas_ocupadas.add(hora_local)
+
+        ahora = timezone.localtime(timezone.now())
+        slots = []
+        for hora in self.SLOTS:
+            ocupado = hora in horas_ocupadas
+            if fecha == hoy and hora <= ahora.hour:
+                ocupado = True
+            slots.append({
+                'hora': hora,
+                'label': f'{hora:02d}:00',
+                'disponible': not ocupado,
+            })
+
+        return JsonResponse({'slots': slots, 'fecha': fecha_str})

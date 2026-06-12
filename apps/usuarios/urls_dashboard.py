@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from apps.servicios.models import Servicio
 
+from apps.citas.models import Cita
 from apps.usuarios.models import Usuario
 
 app_name = 'dashboard'
@@ -20,6 +21,8 @@ def home(request):
         "usuario": request.user,
         "total_usuarios": Usuario.objects.count(),
         "total_servicios": Servicio.objects.count(),
+
+        "servicios_pendientes": Cita.objects.filter(estado='pendiente').count(),  # D2: Servicio.objects.filter(activo=True).count()
     }
 
     # D1: añadir stats de usuarios cuando el módulo esté listo
