@@ -14,12 +14,35 @@
 
         <form method="post">
           {% csrf_token %}
+          
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <input
+            type="hidden"
+            name="next"
+            value="{{ next|default:'' }}"
+          >
+
           {% for field in form %}
           <div class="mb-3">
-            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <label class="form-label" for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
+
             {{ field }}
+
             {% if field.errors %}
-            <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+            <div class="text-danger small mt-1">
+              {{ field.errors.0 }}
+            </div>
             {% endif %}
           </div>
           {% endfor %}

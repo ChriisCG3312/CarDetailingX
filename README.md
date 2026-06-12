@@ -33,13 +33,15 @@ Dentro de la carpeta que usarás para el proyecto:
 
 ```bash
 cd ruta/tu_carpeta
+git init
 git clone https://github.com/ChriisCG3312/CarDetailingX.git
 ```
 
 ### Iniciar tu rama de trabajo
 
 ```bash
-git checkout develop
+git checkout -b develop
+git remote add origin https://github.com/ChriisCG3312/CarDetailingX.git
 git pull origin develop
 git checkout -b feature/tu-modulo
 ```
@@ -57,14 +59,17 @@ python -m venv env
 ### 3. Instalar dependencias
 
 ```bash
+# Asegúrate de tener Python 3.12
 pip install -r requirements.txt
 ```
 
 ### 4. Configurar variables de entorno
 
 ```bash
+# COPIA LA ESTRUCTURA DE .example y EDITA .env
 copy .env.example .env
-# Abre .env y edita los valores de DB_NAME, DB_USER, DB_PASSWORD
+# edita con tu DB_NAME, DB_USER, DB_PASSWORD
+
 ```
 
 ### 5. Crear la base de datos en PostgreSQL
@@ -96,17 +101,6 @@ Accede en: http://127.0.0.1:8000/
 
 ---
 
-## Flujo de trabajo Git
-
-| Rama | Propósito |
-|------|-----------|
-| `main` | Producción — solo merge desde develop |
-| `develop` | Integración — todos los PR van aquí |
-| `feature/usuarios-auth` | Módulo D1 |
-| `feature/servicios-promo` | Módulo D2 |
-| `feature/citas-pago` | Módulo D3 |
-| `feature/seguimiento-notif` | Módulo D4 |
-
 ### Convención de commits
 
 ```
@@ -116,16 +110,22 @@ docs/(readme): actualización
 refactor/(views): mejora de código
 test/(modulo): prueba unitaria
 ```
+### Guardar de forma local los cambios
+1. Agrega todos tus cambios: `git add .`
+2. Comprueba tus archivos con `git status`
+2. Haz commit local. Recuerda mantener la convención de commits: `git commit -m "(tu mensaje)` 
 
-### Crear Pull Request
+### Subir a GitHub
+1. Asegúrate de estar en la rama correspondiente
+2. Haz commit de tus cambios
+3. Haz push a tu rama en github: `git push origin feature/(tu-modulo)`
 
-1. Push a tu rama: `git push origin feature/tu-modulo`
-2. Abre PR hacia `develop` en GitHub
+### Crear Pull Request a Develop
+
+1. Sube los cambios a tu rama: `git push origin feature/tu-modulo`
+2. Abre PR hacia `develop` EN GITHUB
 3. Añade descripción + instrucciones para probar
 4. Mínimo 1 revisión aprobada antes de mergear
-
-> ⚠️ **Importante con migraciones:** D1 debe mergear `CustomUser` primero.
-> Antes de crear migraciones que dependan de otro módulo, sincroniza con `develop`.
 
 ---
 
@@ -133,21 +133,10 @@ test/(modulo): prueba unitaria
 
 | App | Responsable | Modelos principales |
 |-----|-------------|---------------------|
-| `usuarios` | D1 | `Usuario` (CustomUser) |
-| `servicios` | D2 | `Servicio`, `Promocion` |
-| `citas` | D3 | `Vehiculo`, `Cita`, `Pago` |
-| `seguimiento` | D4 | `Seguimiento`, `Notificacion` |
-
----
-
-## Mixins de permisos (disponibles para todos)
-
-```python
-from apps.usuarios.mixins import AdminRequiredMixin, TecnicoRequiredMixin, ClienteRequiredMixin
-
-class MiVista(AdminRequiredMixin, ListView):
-    ...
-```
+| `usuarios` | Christian | `Usuario` (CustomUser) |
+| `servicios` | Manuel | `Servicio`, `Promocion` |
+| `citas` | Carlos | `Vehiculo`, `Cita`, `Pago` |
+| `seguimiento` | Brayan | `Seguimiento`, `Notificacion` |
 
 ---
 

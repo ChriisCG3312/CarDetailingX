@@ -15,7 +15,14 @@ urlpatterns = [
     path('nueva/', views.CitaCreateView.as_view(), name='crear'),
     path('<int:pk>/editar/', views.CitaUpdateView.as_view(), name='editar'),
     path('<int:pk>/cancelar/', views.CitaCancelarView.as_view(), name='cancelar'),
+    path('<int:pk>/confirmar/', views.CitaConfirmarView.as_view(), name='confirmar'),  # RF-05
 
     # Pagos
     path('pagos/nuevo/', views.PagoCreateView.as_view(), name='pago'),
+
+    # Agenda
+    path('agenda/', views.AgendaHoyView.as_view(), name='agenda'),  # RF-08
+    
+    # API
+     path('api/horarios/', views.HorariosDisponiblesView.as_view(), name='api_horarios'),
 ]
