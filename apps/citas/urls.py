@@ -22,4 +22,7 @@ urlpatterns = [
 
     # Agenda
     path('agenda/', views.AgendaHoyView.as_view(), name='agenda'),  # RF-08
+    
+    # API
+     path('api/horarios/', views.HorariosDisponiblesView.as_view(), name='api_horarios'),
 ]
