@@ -1,6 +1,14 @@
 """Formularios del módulo de Citas."""
 from django import forms
+from django.utils import timezone
+
+from apps.servicios.models import Servicio
 from .models import Cita, Vehiculo, Pago
+
+
+HORA_APERTURA = 8
+HORA_CIERRE = 18
+DIAS_ATENCION = set(range(6))  # lunes=0 … sábado=5
 
 
 class VehiculoForm(forms.ModelForm):
@@ -15,6 +23,24 @@ class VehiculoForm(forms.ModelForm):
             'placas': forms.TextInput(attrs={'class': 'form-control'}),
             'foto': forms.FileInput(attrs={'class': 'form-control'}),
         }
+
+    def clean_anio(self):
+        anio = self.cleaned_data['anio']
+        actual = timezone.now().year
+        if not (1990 <= anio <= actual + 1):
+            raise forms.ValidationError("El año del vehículo no es válido")
+        return anio
+
+    def clean_foto(self):
+        foto = self.cleaned_data.get('foto')
+        if not foto or not hasattr(foto, 'name'):
+            return foto
+        ext = foto.name.split('.')[-1].lower()
+        if ext not in ['jpg', 'jpeg', 'png']:
+            raise forms.ValidationError("Solo se permiten imágenes JPG o PNG")
+        if foto.size > 2 * 1024 * 1024:
+            raise forms.ValidationError("La imagen no puede pesar más de 2MB")
+        return foto
 
 
 class CitaForm(forms.ModelForm):
@@ -39,6 +65,64 @@ class CitaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if usuario and not usuario.es_admin:
             self.fields['vehiculo'].queryset = Vehiculo.objects.filter(cliente=usuario)
+        # solo servicios activos (RF-03)
+        self.fields['servicio'].queryset = Servicio.objects.filter(activo=True)
+
+    def clean_fecha_hora(self):
+        fecha_hora = self.cleaned_data.get('fecha_hora')
+        if not fecha_hora:
+            return fecha_hora
+
+        # convertir a hora local antes de validar
+        fecha_hora_local = timezone.localtime(fecha_hora)
+
+        # fecha futura
+        if fecha_hora <= timezone.now():
+            raise forms.ValidationError("No puedes agendar una cita en una fecha pasada")
+
+        # día de atención: lunes–sábado
+        if fecha_hora_local.weekday() not in DIAS_ATENCION:
+            raise forms.ValidationError(
+                "El horario de atención es de lunes a sábado de 8:00 a 18:00"
+            )
+
+        # hora de atención: 8:00–18:00
+        if not (HORA_APERTURA <= fecha_hora_local.hour < HORA_CIERRE):
+            raise forms.ValidationError(
+                "El horario de atención es de lunes a sábado de 8:00 a 18:00"
+            )
+
+        return fecha_hora
+
+    def clean(self):
+        cleaned = super().clean()
+        fecha_hora = cleaned.get('fecha_hora')
+        servicio = cleaned.get('servicio')
+
+        if not fecha_hora or not servicio:
+            return cleaned
+
+        # disponibilidad con margen de duración del servicio (RF-03)
+        duracion = timezone.timedelta(hours=float(servicio.duracion_horas))
+        fin_nueva = fecha_hora + duracion
+
+        traslape = (
+            Cita.objects
+            .exclude(estado=Cita.Estado.CANCELADA)
+            .filter(
+                fecha_hora__lt=fin_nueva,
+                fecha_hora__gte=fecha_hora - duracion,
+            )
+        )
+
+        # al editar, excluir la propia cita
+        if self.instance.pk:
+            traslape = traslape.exclude(pk=self.instance.pk)
+
+        if traslape.exists():
+            raise forms.ValidationError("Ya existe una cita en ese horario. Elige otro")
+
+        return cleaned
 
 
 class PagoForm(forms.ModelForm):
@@ -51,6 +135,7 @@ class PagoForm(forms.ModelForm):
             'metodo': forms.Select(attrs={'class': 'form-select'}),
             'referencia': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # solo citas terminadas sin pago previo (RF-07)
