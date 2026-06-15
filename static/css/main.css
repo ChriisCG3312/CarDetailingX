@@ -2,14 +2,23 @@
 
 /* Variables de color del proyecto */
 :root {
-  --dp-dark:    #1a1a1a;
-  --dp-accent:  #e8c84b;   /* amarillo detailing */
-  --dp-light:   #f8f8f6;
-  --dp-muted:   #6c757d;
+  --dp-dark: #1a1a1a;
+  --dp-accent: #e8c84b;
+  --dp-light: #f8f8f6;
+  --dp-muted: #6c757d;
+  --dp-asfalto: #14171C;
+  --dp-papel: #F7F5F1;
+  --dp-carbon: #1F2329;
+  --dp-ambar: #E8A23D;
+  --dp-ambar-2: #F4C277;
+  --dp-ceramico: #2F6F5E;
+  --dp-ceramico-2: #4FA08A;
+  --dp-cromo: #C9CED4;
 }
 
 /* Layout base */
-html, body {
+html,
+body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -59,16 +68,38 @@ main.container-fluid {
 }
 
 /* Badges de estado de cita */
-.badge-pendiente    { background-color: #6c757d; }
-.badge-confirmada   { background-color: #0d6efd; }
-.badge-en_proceso   { background-color: #fd7e14; }
-.badge-terminada    { background-color: #198754; }
-.badge-cancelada    { background-color: #dc3545; }
+.badge-pendiente {
+  background-color: #6c757d;
+}
+
+.badge-confirmada {
+  background-color: #0d6efd;
+}
+
+.badge-en_proceso {
+  background-color: #fd7e14;
+}
+
+.badge-terminada {
+  background-color: #198754;
+}
+
+.badge-cancelada {
+  background-color: #dc3545;
+}
 
 /* Utilidades */
-.cursor-pointer { cursor: pointer; }
-.text-accent    { color: var(--dp-accent); }
-.bg-accent      { background-color: var(--dp-accent); }
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-accent {
+  color: var(--dp-accent);
+}
+
+.bg-accent {
+  background-color: var(--dp-accent);
+}
 
 /* ─── Landing pública — sin restricciones del contenedor interno ────────── */
 body.page-landing main.container-fluid {
