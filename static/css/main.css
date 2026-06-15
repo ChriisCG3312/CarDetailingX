@@ -69,3 +69,9 @@ main.container-fluid {
 .cursor-pointer { cursor: pointer; }
 .text-accent    { color: var(--dp-accent); }
 .bg-accent      { background-color: var(--dp-accent); }
+
+/* ─── Landing pública — sin restricciones del contenedor interno ────────── */
+body.page-landing main.container-fluid {
+  max-width: none;
+  padding: 0;
+}
