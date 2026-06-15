@@ -20,9 +20,10 @@ class ServicioForm(forms.ModelForm):
 class PromocionForm(forms.ModelForm):
     class Meta:
         model = Promocion
-        fields = ('servicio', 'descripcion', 'descuento_pct', 'fecha_inicio', 'fecha_fin', 'activa')
+        fields = ['nombre', 'paquete', 'descripcion', 'descuento_pct', 'fecha_inicio', 'fecha_fin', 'activa']
         widgets = {
-            'servicio': forms.Select(attrs={'class': 'form-select'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Combo Verano'}),
+            'paquete': forms.Select(attrs={'class': 'form-select'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
             'descuento_pct': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),

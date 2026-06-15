@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 
-from .models import Servicio, Promocion
+from .models import Servicio, Promocion, Paquete
 from .forms import ServicioForm, PromocionForm
 from apps.usuarios.mixins import AdminRequiredMixin, LoginRequiredMixin
 
@@ -17,10 +17,10 @@ class ServicioListView(ListView):
     """Vista pública del catálogo de servicios (accesible sin login)."""
     model = Servicio
     template_name = 'servicios/lista.html'
-    context_object_name = 'servicios'
+    context_object_name = 'paquetes'
 
     def get_queryset(self):
-        return Servicio.objects.filter(activo=True)
+        return Paquete.objects.filter(activo=True, es_personalizado=False)
 
 
 class ServicioAdminListView(AdminRequiredMixin, ListView):
