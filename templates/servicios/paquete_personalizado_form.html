@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block titulo %}Diseñar mi paquete{% endblock %}
+
+{% block contenido %}
+<div class="container py-5">
+    <div class="mb-4">
+        <a href="{% url 'servicios:catalogo' %}" class="btn-pill-ghost text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>Regresar al catálogo
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="dp-eyebrow">Mi Auto</div>
+            <h1 class="dp-title mb-3">Diseñar mi paquete personalizado</h1>
+            <p class="text-muted mb-4">
+                Elige libremente los servicios individuales que deseas para tu vehículo. Conforme los selecciones, verás el resumen aquí abajo.
+            </p>
+
+            <div class="dp-card p-4 p-md-5">
+                <form method="post" novalidate id="personalizadoForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark fs-5 mb-2">
+                            Selecciona uno o más servicios <span class="text-muted" style="font-size: 0.85rem;">(Mantén presionado Ctrl para elegir varios)</span>
+                        </label>
+                        {{ form.servicios }}
+                        {% if form.servicios.errors %}
+                            <div class="text-danger small mt-1">{{ form.servicios.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Visor Interactivo en Tiempo Real -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small" style="letter-spacing: 0.05em;">
+                            RESUMEN DE TU COMBO PERSONALIZADO:
+                        </label>
+                        <div id="visorServiciosCliente" class="d-flex flex-wrap gap-2 p-3 rounded" style="background: var(--dp-papel-2); border: 1px dashed #ECE8E0; min-height: 60px;">
+                            <span class="text-muted small italic" id="placeholderCliente">No has seleccionado ningún servicio todavía.</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'servicios:catalogo' %}" class="btn-pill-ghost me-md-2" style="text-decoration: none;">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-pill-primary justify-content-center">
+                            <i class="bi bi-calendar-check me-2"></i>Crear mi paquete y agendar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectServicios = document.querySelector("select[name='servicios']");
+        const visor = document.getElementById("visorServiciosCliente");
+        const placeholder = document.getElementById("placeholderCliente");
+
+        if (selectServicios && visor) {
+            function actualizarVisor() {
+                visor.innerHTML = "";
+                let seleccionados = 0;
+
+                Array.from(selectServicios.options).forEach(option => {
+                    if (option.selected) {
+                        seleccionados++;
+                        const badge = document.createElement("span");
+                        // Usamos badge-rol-cliente que tiene el verde cerámico de tu main.css
+                        badge.className = "badge-rol badge-rol-cliente px-3 py-2 shadow-sm d-inline-flex align-items-center";
+                        badge.style.borderRadius = "8px";
+                        badge.innerHTML = `<i class="bi bi-check2-circle me-1 text-accent"></i> ${option.text}`;
+                        visor.appendChild(badge);
+                    }
+                });
+
+                if (seleccionados === 0) {
+                    visor.appendChild(placeholder);
+                }
+            }
+
+            selectServicios.addEventListener("change", actualizarVisor);
+            actualizarVisor();
+        }
+    });
+</script>
+{% endblock %}

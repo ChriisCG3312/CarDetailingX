@@ -62,3 +62,11 @@ class PaqueteForm(forms.ModelForm):
             'servicios': forms.SelectMultiple(attrs={'class': 'form-select', 'help_text': 'Mantén presionado Ctrl para seleccionar varios'}),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+class PaquetePersonalizadoForm(forms.ModelForm):
+    class Meta:
+        model = Paquete
+        fields = ['servicios']
+        widgets = {
+            'servicios': forms.SelectMultiple(attrs={'class': 'form-select', 'size': '8'}),
+        }
