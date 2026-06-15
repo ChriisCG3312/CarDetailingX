@@ -102,16 +102,6 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
             if not Vehiculo.objects.filter(cliente=request.user).exists():
                 messages.info(request, 'Primero registra un vehículo para poder agendar una cita.')
                 return redirect('citas:crear_vehiculo')
-            # ya tiene una cita en proceso → no puede crear otra
-            if Cita.objects.filter(
-                cliente=request.user,
-                estado=Cita.Estado.EN_PROCESO
-            ).exists():
-                messages.error(
-                    request,
-                    'Ya tienes una cita en proceso. Espera a que termine antes de agendar otra.'
-                )
-                return redirect('citas:lista')
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
