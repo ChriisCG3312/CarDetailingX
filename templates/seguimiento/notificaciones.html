@@ -4,54 +4,63 @@
 {% block contenido %}
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Notificaciones</h5>
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+      <div>
+        <p class="dp-eyebrow"><i class="bi bi-bell me-1"></i>Notificaciones</p>
+        <h1 class="dp-title" style="font-size: 1.6rem;">Tu actividad reciente</h1>
+      </div>
       <form method="post" action="{% url 'seguimiento:marcar_todas' %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-outline-secondary btn-sm">
+        <button type="submit" class="btn-pill-ghost">
           <i class="bi bi-check2-all me-1"></i>Marcar todas como leídas
         </button>
       </form>
     </div>
 
     {% if notificaciones %}
-    <div class="list-group shadow-sm">
+    <div class="dp-card border-0 overflow-hidden">
       {% for notif in notificaciones %}
-      <div class="list-group-item list-group-item-action {% if not notif.leida %}bg-light border-start border-primary border-3{% endif %}">
-        <div class="d-flex justify-content-between align-items-start">
-          <div class="me-3">
+      <div class="d-flex justify-content-between align-items-start gap-3 p-3 notif-item {% if not notif.leida %}notif-unread{% endif %} {% if not forloop.last %}notif-divider{% endif %}">
+        <div class="d-flex gap-3">
+          <div class="notif-icon
+            {% if notif.tipo == 'cita_confirmada' %}notif-icon-ceramico
+            {% elif notif.tipo == 'cita_cancelada' %}notif-icon-terracota
+            {% elif notif.tipo == 'servicio_listo' %}notif-icon-ambar
+            {% else %}notif-icon-asfalto{% endif %}">
             {% if notif.tipo == 'cita_confirmada' %}
-              <i class="bi bi-calendar-check text-success me-1"></i>
+              <i class="bi bi-calendar-check"></i>
             {% elif notif.tipo == 'cita_cancelada' %}
-              <i class="bi bi-calendar-x text-danger me-1"></i>
+              <i class="bi bi-calendar-x"></i>
             {% elif notif.tipo == 'servicio_listo' %}
-              <i class="bi bi-star-fill text-warning me-1"></i>
+              <i class="bi bi-star-fill"></i>
             {% else %}
-              <i class="bi bi-arrow-right-circle text-primary me-1"></i>
+              <i class="bi bi-arrow-right-circle"></i>
             {% endif %}
-            <span {% if not notif.leida %}class="fw-semibold"{% endif %}>
+          </div>
+          <div>
+            <p class="mb-1 {% if not notif.leida %}fw-semibold{% endif %}" style="color: var(--dp-carbon); font-size: 0.92rem;">
               {{ notif.mensaje }}
-            </span>
-          </div>
-          <div class="text-end text-nowrap">
-            <small class="text-muted d-block">{{ notif.creada_en|date:"d/m/Y H:i" }}</small>
-            {% if not notif.leida %}
-            <form method="post" action="{% url 'seguimiento:marcar_leida' notif.pk %}" class="mt-1">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-link btn-sm p-0 text-muted">
-                Marcar leída
-              </button>
-            </form>
+            </p>
+            {% if notif.cita %}
+            <a href="{% url 'seguimiento:detalle_cliente' notif.cita.seguimiento.pk %}" class="small text-decoration-none" style="color: var(--dp-ceramico); font-weight: 600;">
+              <i class="bi bi-arrow-right me-1"></i>Ver detalle del servicio
+            </a>
             {% endif %}
           </div>
         </div>
-        {% if notif.cita %}
-        <div class="mt-1">
-          <a href="{% url 'seguimiento:detalle_cliente' notif.cita.seguimiento.pk %}" class="small text-decoration-none">
-            <i class="bi bi-arrow-right me-1"></i>Ver detalle del servicio
-          </a>
+        <div class="text-end text-nowrap">
+          <small style="font-family: var(--font-mono); font-size: 0.72rem; color: #9A948A;">
+            {{ notif.creada_en|date:"d/m/Y H:i" }}
+          </small>
+          {% if not notif.leida %}
+          <form method="post" action="{% url 'seguimiento:marcar_leida' notif.pk %}" class="mt-1">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link btn-sm p-0" style="color: var(--dp-ceramico); font-size: 0.78rem; text-decoration: none;">
+              Marcar leída
+            </button>
+          </form>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
       {% endfor %}
     </div>
@@ -59,13 +68,13 @@
     <!-- Paginación -->
     {% if is_paginated %}
     <nav class="mt-3">
-      <ul class="pagination pagination-sm">
+      <ul class="pagination adm-pagination">
         {% if page_obj.has_previous %}
         <li class="page-item">
           <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
         </li>
         {% endif %}
-        <li class="page-item active">
+        <li class="page-item disabled">
           <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
         </li>
         {% if page_obj.has_next %}
@@ -78,8 +87,9 @@
     {% endif %}
 
     {% else %}
-    <div class="alert alert-info">
-      <i class="bi bi-bell-slash me-1"></i>No tienes notificaciones.
+    <div class="dp-card border-0 text-center p-5">
+      <i class="bi bi-bell-slash fs-1 mb-2 d-block" style="color: #C9C2B5;"></i>
+      <p class="mb-0" style="color: #9A948A;">No tienes notificaciones.</p>
     </div>
     {% endif %}
 
