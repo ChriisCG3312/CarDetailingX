@@ -12,20 +12,16 @@
 <div class="container py-5">
 
     <div class="mb-4">
-        <a
-            href="{% url 'servicios:promociones' %}"
-            class="btn-pill-ghost text-decoration-none"
-        >
-            <i class="bi bi-arrow-left me-2"></i>
-            Regresar a promociones
+        <a href="{% url 'servicios:promociones' %}" class="btn-pill-ghost text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>Regresar a promociones
         </a>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-9">
-
-            <div class="dp-eyebrow">
-                Promociones
+            
+            <div class="div p-0">
+                <div class="dp-eyebrow">Promociones</div>
             </div>
 
             <h1 class="dp-title mb-3">
@@ -37,36 +33,36 @@
             </h1>
 
             <p class="text-muted mb-4">
-                Configura descuentos y beneficios para destacar servicios dentro del catálogo.
+                Configura descuentos y beneficios para destacar los paquetes dentro del catálogo.
             </p>
 
+            <!-- Tarjeta contenedora con el diseño de Cueto -->
             <div class="dp-card p-4 p-md-5">
-
                 {% if object %}
-                <div class="mb-4">
-                    <span class="dp-section-label">
-                        Promoción seleccionada
-                    </span>
-
-                    <div
-                        class="mt-2 px-3 py-2 rounded"
-                        style="
-                            background: var(--dp-papel-2);
-                            border: 1px solid #E4DFD6;
-                            font-family: var(--font-mono);
-                        "
-                    >
-                        {{ object }}
+                    <div class="mb-4">
+                        <span class="dp-section-label">Promoción seleccionada</span>
+                        <div class="mt-2 px-3 py-2 rounded" style="background: var(--dp-papel-2); border: 1px solid #E4DFD6; font-family: var(--font-mono);">
+                            {{ object }}
+                        </div>
                     </div>
-                </div>
                 {% endif %}
 
+                <!-- Formulario del sistema -->
                 <form method="post" novalidate>
                     {% csrf_token %}
-
+                    
                     {% include "partials/_form_card.html" %}
+                    
+                    <!-- Botones de Acción integrados al diseño -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'servicios:promociones' %}" class="btn btn-secondary me-md-2">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Guardar cambios
+                        </button>
+                    </div>
                 </form>
-
             </div>
 
         </div>

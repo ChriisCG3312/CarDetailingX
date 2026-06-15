@@ -19,4 +19,10 @@ urlpatterns = [
     path('promociones/nueva/', views.PromocionCreateView.as_view(), name='crear_promo'),
     path('promociones/<int:pk>/editar/', views.PromocionUpdateView.as_view(), name='editar_promo'),
     path('promociones/<int:pk>/eliminar/', views.PromocionDeleteView.as_view(), name='eliminar_promo'),
+
+    # Administración de Paquetes
+    path('admin/paquetes/', views.PaqueteAdminListView.as_view(), name='paquete_admin_list'),
+    path('admin/paquetes/nuevo/', views.PaqueteCreateView.as_view(), name='paquete_crear'),
+    path('admin/paquetes/<int:pk>/editar/', views.PaqueteUpdateView.as_view(), name='paquete_editar'),
+    path('admin/paquetes/<int:pk>/eliminar/', views.PaqueteDeleteView.as_view(), name='paquete_eliminar'),
 ]
