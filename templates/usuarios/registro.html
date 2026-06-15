@@ -1,135 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
 {% block titulo %}Crear cuenta{% endblock %}
 
 {% block extra_css %}
-<style>
-  :root {
-    --auth-asfalto: #14171C;
-    --auth-papel: #F7F5F1;
-    --auth-ambar: #E8A23D;
-    --auth-ambar-2: #F4C277;
-    --auth-ceramico: #2F6F5E;
-    --auth-cromo: #C9CED4;
-  }
-
-  body { background: var(--auth-papel); }
-
-  .auth-card {
-    border: none;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 25px 60px -25px rgba(20, 23, 28, 0.35);
-  }
-
-  .auth-side {
-    position: relative;
-    background: var(--auth-asfalto);
-    color: var(--auth-papel);
-    padding: 2.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-    min-height: 220px;
-  }
-
-  .auth-side::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.05) 50%, transparent 65%);
-    pointer-events: none;
-  }
-
-  .auth-side i {
-    color: var(--auth-ambar);
-    font-size: 2.5rem;
-  }
-
-  .auth-side h1 {
-    font-weight: 800;
-    margin: 0.75rem 0 0.25rem;
-  }
-
-  .auth-side p {
-    color: var(--auth-cromo);
-    font-size: 0.92rem;
-    margin: 0;
-  }
-
-  .auth-side ul {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .auth-side ul li {
-    font-size: 0.85rem;
-    color: var(--auth-cromo);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .auth-side ul li i {
-    font-size: 0.85rem;
-    color: var(--auth-ambar);
-  }
-
-  .auth-form {
-    padding: 2.5rem 2rem;
-  }
-
-  .auth-form label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--auth-asfalto);
-  }
-
-  .auth-form .form-control {
-    border-radius: 10px;
-    padding: 0.6rem 0.9rem;
-    border-color: #E4DFD6;
-  }
-
-  .auth-form .form-control:focus {
-    border-color: var(--auth-ambar);
-    box-shadow: 0 0 0 3px rgba(232, 162, 61, 0.18);
-  }
-
-  .btn-auth {
-    background: var(--auth-ambar);
-    border: none;
-    color: var(--auth-asfalto);
-    font-weight: 700;
-    border-radius: 10px;
-    transition: background 0.15s ease, transform 0.15s ease;
-  }
-
-  .btn-auth:hover {
-    background: var(--auth-ambar-2);
-    color: var(--auth-asfalto);
-    transform: translateY(-1px);
-  }
-
-  .auth-link {
-    color: var(--auth-ceramico);
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .auth-link:hover {
-    color: var(--auth-asfalto);
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/registro.css' %}">
 {% endblock %}
 
 {% block contenido %}
 <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
-  <div class="col-sm-11 col-md-9 col-lg-8">
+  <div class="col-sm-11 col-md-9 col-lg-7">
     <div class="card auth-card">
       <div class="row g-0">
 
