@@ -6,6 +6,7 @@ from apps.servicios.models import Servicio
 
 from apps.citas.models import Cita
 from apps.usuarios.models import Usuario
+from apps.seguimiento.models import Seguimiento
 
 app_name = 'dashboard'
 
@@ -22,28 +23,9 @@ def home(request):
         "total_usuarios": Usuario.objects.count(),
         "total_servicios": Servicio.objects.count(),
 
-        "servicios_pendientes": Cita.objects.filter(estado='pendiente').count(),  # D2: Servicio.objects.filter(activo=True).count()
+        "servicios_pendientes": Cita.objects.filter(estado='pendiente').count(),  
+        "servicios_activos": Seguimiento.objects.exclude(estado_actual=Seguimiento.EstadoServicio.ENTREGADO).count(),
     }
-
-    # D1: añadir stats de usuarios cuando el módulo esté listo
-    # if request.user.es_admin:
-    #     from apps.usuarios.models import Usuario
-    #     context['total_usuarios'] = Usuario.objects.count()
-
-    # D2: añadir stats de servicios
-    # from apps.servicios.models import Servicio
-    # context['total_servicios'] = Servicio.objects.filter(activo=True).count()
-
-    # D3: añadir citas del día
-    # from apps.citas.models import Cita
-    # from django.utils import timezone
-    # context['citas_hoy'] = Cita.objects.filter(fecha_hora__date=timezone.now().date())
-
-    # D4: añadir notificaciones pendientes
-    # from apps.seguimiento.models import Notificacion
-    # context['notificaciones'] = Notificacion.objects.filter(
-    #     usuario=request.user, leida=False
-    # )
 
     return render(request, 'dashboard.html', context)
 
