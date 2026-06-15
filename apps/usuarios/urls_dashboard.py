@@ -24,7 +24,7 @@ def home(request):
         "total_servicios": Servicio.objects.count(),
 
         "servicios_pendientes": Cita.objects.filter(estado='pendiente').count(),  
-        "servicios_activos": Seguimiento.objects.exclude(estado_actual=Seguimiento.EstadoServicio.ENTREGADO).count(),
+        "servicios_activos": Seguimiento.objects.exclude(estado=Seguimiento.Estado.ENTREGADO).count(),
     }
 
     return render(request, 'dashboard.html', context)
