@@ -42,7 +42,6 @@ def notificar_cambio_cita(sender, instance, created, **kwargs):
                     mensaje=f'Tu cita del {fecha} ha sido cancelada.',
                 )
     except Exception as e:
-        # No interrumpir el flujo principal
         import logging
         logging.getLogger(__name__).error(f'Signal notificar_cambio_cita falló: {e}')
 
@@ -51,18 +50,27 @@ def notificar_cambio_cita(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Seguimiento)
 def notificar_cambio_seguimiento(sender, instance, created, **kwargs):
-    """Notifica al cliente según el estado del seguimiento."""
+    """Notifica al cliente y al técnico según el estado del seguimiento."""
     try:
         cliente = instance.cita.cliente
-        fecha   = instance.cita.fecha_hora.strftime('%d/%m/%Y %H:%M')
+        tecnico = instance.tecnico
 
         if created:
-            # Vehículo recibido en taller
+            # Notificar al cliente — vehículo recibido
             Notificacion.objects.create(
                 usuario=cliente,
                 cita=instance.cita,
                 tipo=Notificacion.Tipo.SERVICIO_INICIADO,
                 mensaje='Tu vehículo ha sido recibido en taller.',
+            )
+            # Notificar al técnico — nueva asignación
+            Notificacion.objects.create(
+                usuario=tecnico,
+                cita=instance.cita,
+                tipo=Notificacion.Tipo.SERVICIO_INICIADO,
+                mensaje=f'Se te ha asignado el vehículo {instance.cita.vehiculo} '
+                        f'del cliente {cliente.get_full_name() or cliente.username}. '
+                        f'Servicio: {instance.cita.servicio}.',
             )
         else:
             if instance.estado == Seguimiento.Estado.LISTO:
@@ -92,7 +100,6 @@ def actualizar_estado_cita(sender, instance, **kwargs):
         cita = instance.cita
         if instance.estado == Seguimiento.Estado.ENTREGADO:
             if cita.estado != Cita.Estado.TERMINADA:
-                # Usamos update() para no disparar post_save de Cita en bucle
                 Cita.objects.filter(pk=cita.pk).update(estado=Cita.Estado.TERMINADA)
     except Exception as e:
         import logging
