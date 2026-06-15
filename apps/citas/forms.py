@@ -98,6 +98,21 @@ class CitaForm(forms.ModelForm):
         cleaned = super().clean()
         fecha_hora = cleaned.get('fecha_hora')
         servicio = cleaned.get('servicio')
+        vehiculo = cleaned.get('vehiculo')
+
+        # validar que el vehículo no tenga ya una cita en proceso
+        if vehiculo:
+            en_proceso = Cita.objects.filter(
+                vehiculo=vehiculo,
+                estado=Cita.Estado.EN_PROCESO
+            )
+            if self.instance.pk:
+                en_proceso = en_proceso.exclude(pk=self.instance.pk)
+            if en_proceso.exists():
+                raise forms.ValidationError(
+                    'Este vehículo ya tiene una cita en proceso. '
+                    'Espera a que termine antes de agendar otra.'
+                )
 
         if not fecha_hora or not servicio:
             return cleaned
