@@ -4,7 +4,7 @@ from django.apps import AppConfig
 class SeguimientoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.seguimiento'
-    verbose_name = 'Seguimiento'
+    verbose_name = 'Seguimiento y Notificaciones'
 
     def ready(self):
-        import apps.seguimiento.signals  # noqa: F401 — activa las señales
+        import apps.seguimiento.signals  # noqa: F401

@@ -5,13 +5,15 @@ from . import views
 app_name = 'seguimiento'
 
 urlpatterns = [
-    # Seguimiento del servicio
-    path('', views.SeguimientoListView.as_view(), name='lista'),
-    path('nuevo/', views.SeguimientoCreateView.as_view(), name='crear'),
-    path('<int:pk>/actualizar/', views.SeguimientoUpdateView.as_view(), name='actualizar'),
+    # Seguimientos
+    path('',                     views.SeguimientoListaView.as_view(),           name='lista'),
+    path('nuevo/',               views.SeguimientoCrearView.as_view(),           name='crear'),
+    path('<int:pk>/actualizar/', views.SeguimientoActualizarView.as_view(),      name='actualizar'),
+    path('<int:pk>/detalle/',    views.SeguimientoDetalleClienteView.as_view(),  name='detalle_cliente'),
 
     # Notificaciones
-    path('notificaciones/', views.NotificacionListView.as_view(), name='notificaciones'),
-    path('notificaciones/<int:pk>/leida/', views.MarcarLeidaView.as_view(), name='marcar_leida'),
-    path('notificaciones/leer-todas/', views.MarcarTodasLeidasView.as_view(), name='leer_todas'),
+    path('notificaciones/',               views.NotificacionListaView.as_view(),    name='notificaciones'),
+    path('notificaciones/marcar-todas/',  views.MarcarTodasLeidasView.as_view(),    name='marcar_todas'),
+    path('notificaciones/<int:pk>/leer/', views.MarcarLeidaView.as_view(),          name='marcar_leida'),
+    
 ]
