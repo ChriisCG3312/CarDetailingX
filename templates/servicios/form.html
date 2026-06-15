@@ -1,37 +1,82 @@
 {% extends "base.html" %}
 
+{% block titulo %}
+    {% if object %}
+        Editar servicio
+    {% else %}
+        Registrar servicio
+    {% endif %}
+{% endblock %}
+
 {% block contenido %}
-<div class="container mt-5">
+<div class="container py-5">
+
+    <div class="mb-4">
+        <a
+            href="{% url 'servicios:admin_lista' %}"
+            class="btn-pill-ghost text-decoration-none"
+        >
+            <i class="bi bi-arrow-left me-2"></i>
+            Regresar al catálogo
+        </a>
+    </div>
+
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="mb-3">
-                <a href="{% url 'servicios:admin_lista' %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Regresar al catálogo
-                </a>
+        <div class="col-lg-9">
+
+            <div class="dp-eyebrow">
+                Administración
             </div>
 
-            <div class="card shadow bg-dark text-white border-secondary">
-                <div class="card-header border-secondary table-secondary py-3">
-                    <h4 class="mb-0 m-0">
-                        <i class="bi bi-pencil-square text-success"></i> 
-                        {% if object %} Editar Servicio: {{ object.nombre }} {% else %} Registrar Nuevo Servicio {% endif %}
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        {% include "partials/_form_card.html" %}
+            <h1 class="dp-title mb-4">
+                {% if object %}
+                    Editar servicio
+                {% else %}
+                    Registrar nuevo servicio
+                {% endif %}
+            </h1>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="{% url 'servicios:admin_lista' %}" class="btn btn-secondary me-md-2">
-                                Cancelar
-                            </a>
+            <div class="dp-card p-4 p-md-5">
+
+                {% if object %}
+                    <div class="mb-4">
+                        <span class="dp-section-label">
+                            Servicio seleccionado
+                        </span>
+
+                        <div
+                            class="mt-2 px-3 py-2 rounded"
+                            style="
+                                background: var(--dp-papel-2);
+                                border: 1px solid #E4DFD6;
+                                font-family: var(--font-mono);
+                            "
+                        >
+                            {{ object.nombre }}
                         </div>
-                    </form>
-                </div>
+                    </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    {% include "partials/_form_card.html" %}
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a
+                            href="{% url 'servicios:admin_lista' %}"
+                            class="btn-pill-ghost text-decoration-none"
+                        >
+                            Cancelar
+                        </a>
+                    </div>
+
+                </form>
+
             </div>
+
         </div>
     </div>
+
 </div>
 {% endblock %}

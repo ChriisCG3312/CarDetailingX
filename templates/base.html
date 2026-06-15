@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block titulo %}Detailing{% endblock %} — Detailing Pro</title>
+  <title>{% block titulo %}Detailing{% endblock %} — CarDetailingX</title>
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Tipografía del sistema de diseño -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <!-- CSS propio -->
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
@@ -20,10 +24,10 @@
 
   {% if user.is_authenticated %}
   <!-- ── Navbar ─────────────────────────────────────────────────────────── -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark dp-navbar">
     <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="{% url 'dashboard:home' %}">
-        <i class="bi bi-car-front-fill me-1"></i>CarDetailingX
+      <a class="navbar-brand" href="{% url 'dashboard:home' %}">
+        <i class="bi bi-car-front-fill me-1"></i>CarDetailing<span class="accent">X</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
         <span class="navbar-toggler-icon"></span>
@@ -74,7 +78,7 @@
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
               <i class="bi bi-gear me-1"></i>Administración
             </a>
-            <ul class="dropdown-menu dropdown-menu-dark">
+            <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'usuarios:lista' %}">
                 <i class="bi bi-people me-1"></i>Usuarios
               </a></li>
@@ -110,7 +114,7 @@
             <a class="nav-link position-relative" href="{% url 'seguimiento:notificaciones' %}">
               <i class="bi bi-bell fs-5"></i>
               {% if notif_count %}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill notif-badge">
                 {{ notif_count }}
               </span>
               {% endif %}
@@ -120,8 +124,16 @@
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
               <i class="bi bi-person-circle me-1"></i>{{ user.get_short_name|default:user.username }}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-              <li><span class="dropdown-item-text text-muted small">{{ user.get_rol_display }}</span></li>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li class="dropdown-item-text">
+                {% if user.rol == 'admin' %}
+                <span class="badge-rol badge-rol-admin">{{ user.get_rol_display }}</span>
+                {% elif user.rol == 'tecnico' %}
+                <span class="badge-rol badge-rol-tecnico">{{ user.get_rol_display }}</span>
+                {% else %}
+                <span class="badge-rol badge-rol-cliente">{{ user.get_rol_display }}</span>
+                {% endif %}
+              </li>
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form method="post" action="{% url 'usuarios:logout' %}" class="d-inline">
@@ -157,7 +169,7 @@
   </main>
 
   <!-- ── Footer ────────────────────────────────────────────────────────── -->
-  <footer class="bg-dark text-secondary text-center py-3 mt-auto small">
+  <footer class="dp-footer text-center py-3 mt-auto small">
     CarDetailingX &copy; {% now "Y" %} — Sistema de gestión interno
   </footer>
 

@@ -1,37 +1,87 @@
 {% extends "base.html" %}
 
-{% block contenido %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow bg-dark text-white border-danger">
-                <div class="card-header bg-danger text-white py-3">
-                    <h5 class="mb-0 m-0">
-                        <i class="bi bi-exclamation-triangle-fill"></i> ¿Confirmar eliminación?
-                    </h5>
-                </div>
-                <div class="card-body p-4 text-center">
-                    <p class="fs-5">
-                        Estás a punto de eliminar permanentemente el servicio:
-                    </p>
-                    <h3 class="text-warning mb-4">"{{ object.nombre }}"</h3>
-                    <p class="text-muted small">
-                        Esta acción no se puede deshacer y el servicio se borrará de la base de datos de forma definitiva.
-                    </p>
+{% block titulo %}Eliminar servicio{% endblock %}
 
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="d-flex justify-content-center gap-3 mt-4">
-                            <a href="{% url 'servicios:admin_lista' %}" class="btn btn-secondary px-4">
-                                Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-danger px-4">
-                                <i class="bi bi-trash-fill"></i> Eliminar Definitivamente
-                            </button>
-                        </div>
-                    </form>
+{% block contenido %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+
+            <div class="dp-card text-center p-4 p-md-5">
+
+                <div
+                    class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-4"
+                    style="
+                        width: 88px;
+                        height: 88px;
+                        background: #F6E7E2;
+                        color: #B5563E;
+                    "
+                >
+                    <i class="bi bi-trash-fill fs-2"></i>
                 </div>
+
+                <div class="dp-eyebrow mb-2">
+                    Administración
+                </div>
+
+                <h1 class="dp-title mb-3">
+                    Eliminar servicio
+                </h1>
+
+                <p class="text-muted mb-2">
+                    Estás a punto de eliminar permanentemente el siguiente servicio:
+                </p>
+
+                <h4
+                    class="mb-4"
+                    style="
+                        color: var(--dp-carbon);
+                        font-family: var(--font-display);
+                        font-weight: 800;
+                    "
+                >
+                    "{{ object.nombre }}"
+                </h4>
+
+                <p
+                    class="small mb-4"
+                    style="color: #9A948A;"
+                >
+                    Esta acción no se puede deshacer. El servicio será eliminado
+                    definitivamente de la base de datos.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+                        <a
+                            href="{% url 'servicios:admin_lista' %}"
+                            class="btn-pill-ghost text-decoration-none"
+                        >
+                            Cancelar
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn border-0 text-white px-4 py-2"
+                            style="
+                                background: #B5563E;
+                                border-radius: 999px;
+                                font-weight: 600;
+                            "
+                        >
+                            <i class="bi bi-trash-fill me-2"></i>
+                            Eliminar definitivamente
+                        </button>
+
+                    </div>
+                </form>
+
             </div>
+
         </div>
     </div>
 </div>

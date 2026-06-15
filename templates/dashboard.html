@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -44,7 +45,7 @@
   </a>
 
   <a href="{% url 'citas:lista' %}" class="dash-card dash-card-dark">
-    <div class="dash-card-icon dci-asfalto" style="background: rgba(255,255,255,0.08);"><i class="bi bi-calendar3" style="color: var(--dash-ambar);"></i></div>
+    <div class="dash-card-icon dci-asfalto" style="background: rgba(255,255,255,0.08);"><i class="bi bi-calendar3" style="color: var(--dp-ambar);"></i></div>
     <div class="dash-card-body">
       <div class="dash-card-label">Agenda</div>
       <div class="dash-card-sub">{{ servicios_pendientes }} pendientes</div>
@@ -105,7 +106,7 @@
 <div class="dash-grid">
 
   <a href="{% url 'seguimiento:lista' %}" class="dash-card dash-card-dark">
-    <div class="dash-card-icon" style="background: rgba(255,255,255,0.08);"><i class="bi bi-wrench-adjustable" style="color: var(--dash-ambar);"></i></div>
+    <div class="dash-card-icon" style="background: rgba(255,255,255,0.08);"><i class="bi bi-wrench-adjustable" style="color: var(--dp-ambar);"></i></div>
     <div class="dash-card-body">
       <div class="dash-card-label">Mis servicios activos</div>
       <div class="dash-card-sub">Vehículos asignados para hoy</div>

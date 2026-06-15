@@ -3,41 +3,37 @@
 
 {% block contenido %}
 <div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="card shadow-sm">
-      <div class="card-header bg-dark text-white">
-        <i class="bi bi-person-workspace me-2"></i>Asignar técnico a cita
-      </div>
-      <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
+    <div class="col-lg-7">
 
-          {% for field in form %}
-          <div class="mb-3">
-            <label class="form-label fw-semibold">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-              {% for error in field.errors %}
-              <div class="text-danger small mt-1">{{ error }}</div>
-              {% endfor %}
-            {% endif %}
-            {% if field.help_text %}
-            <div class="form-text">{{ field.help_text }}</div>
-            {% endif %}
-          </div>
-          {% endfor %}
+        <div class="mb-4">
+            <div class="dp-eyebrow">Seguimiento</div>
 
-          <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-check-lg me-1"></i>Crear seguimiento
-            </button>
-            <a href="{% url 'seguimiento:lista' %}" class="btn btn-outline-secondary">
-              <i class="bi bi-x-lg me-1"></i>Cancelar
-            </a>
-          </div>
-        </form>
-      </div>
+            <h1 class="dp-title">
+                Asignar técnico
+            </h1>
+        </div>
+
+        <div class="dp-card p-4">
+
+            <div class="mb-4">
+                <div class="dp-section-label">
+                    Configuración
+                </div>
+
+                <h5 class="mb-0 fw-semibold">
+                    Asignar técnico a la cita
+                </h5>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% include "partials/_form_card.html" with cancel_url="seguimiento:lista" %}
+
+            </form>
+
+        </div>
+
     </div>
-  </div>
 </div>
 {% endblock %}
