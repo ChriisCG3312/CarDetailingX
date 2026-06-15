@@ -3,12 +3,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+
+from apps.usuarios.views import LandingView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
+    # Redirige la raíz al dashboard o login
+    path('', LandingView.as_view(), name='landing'),
 
     # Apps
     path('usuarios/', include('apps.usuarios.urls', namespace='usuarios')),
