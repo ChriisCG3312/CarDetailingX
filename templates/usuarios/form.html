@@ -1,6 +1,0 @@
-{% extends "base.html" %}
-{% block titulo %}{{ titulo }}{% endblock %}
-
-{% block contenido %}
-{% include "partials/_form_card.html" with form=form titulo=titulo cancel_url="usuarios:lista" %}
-{% endblock %}
