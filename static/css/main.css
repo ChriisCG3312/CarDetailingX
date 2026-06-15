@@ -1,0 +1,77 @@
+/* ─── CarDetailingX — estilos globales ──────────────────────────────────── */
+
+/* Variables de color del proyecto */
+:root {
+  --dp-dark:    #1a1a1a;
+  --dp-accent:  #e8c84b;   /* amarillo detailing */
+  --dp-light:   #f8f8f6;
+  --dp-muted:   #6c757d;
+}
+
+/* Layout base */
+html, body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--dp-light);
+  font-size: 0.95rem;
+}
+
+main.container-fluid {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Navbar */
+.navbar-brand {
+  letter-spacing: 0.03em;
+}
+
+/* Cards */
+.card {
+  border-radius: 0.5rem;
+}
+
+/* Tablas */
+.table thead th {
+  background-color: var(--dp-dark);
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(232, 200, 75, 0.08);
+}
+
+/* Botones */
+.btn-dark {
+  background-color: var(--dp-dark);
+  border-color: var(--dp-dark);
+}
+
+.btn-dark:hover {
+  background-color: #333;
+  border-color: #333;
+}
+
+/* Badges de estado de cita */
+.badge-pendiente    { background-color: #6c757d; }
+.badge-confirmada   { background-color: #0d6efd; }
+.badge-en_proceso   { background-color: #fd7e14; }
+.badge-terminada    { background-color: #198754; }
+.badge-cancelada    { background-color: #dc3545; }
+
+/* Utilidades */
+.cursor-pointer { cursor: pointer; }
+.text-accent    { color: var(--dp-accent); }
+.bg-accent      { background-color: var(--dp-accent); }
+
+/* ─── Landing pública — sin restricciones del contenedor interno ────────── */
+body.page-landing main.container-fluid {
+  max-width: none;
+  padding: 0;
+}
