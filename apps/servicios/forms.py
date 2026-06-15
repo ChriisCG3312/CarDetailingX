@@ -1,6 +1,7 @@
 """Formularios del módulo de Servicios."""
 from django import forms
 from .models import Servicio, Promocion
+from .models import Paquete
 
 
 class ServicioForm(forms.ModelForm):
@@ -38,3 +39,26 @@ class PromocionForm(forms.ModelForm):
         if inicio and fin and fin < inicio:
             raise forms.ValidationError('La fecha de fin no puede ser anterior a la de inicio.')
         return cleaned
+
+
+class PaqueteForm(forms.ModelForm):
+    # Campo extra independiente para aplicar el descuento al momento de crear
+    descuento_promocion = forms.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        required=False,
+        min_value=0,
+        max_value=100,
+        label="Descuento Inicial (%)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10.00 (Dejar vacío o en 0 si no lleva)'})
+    )
+
+    class Meta:
+        model = Paquete
+        fields = ['nombre', 'descripcion', 'servicios', 'activo']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Combo Pulido Premium'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe qué incluye este paquete...'}),
+            'servicios': forms.SelectMultiple(attrs={'class': 'form-select', 'help_text': 'Mantén presionado Ctrl para seleccionar varios'}),
+            'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

@@ -9,10 +9,13 @@
             <h1 class="dp-title">Gestión de servicios</h1>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'servicios:promociones' %}" class="btn-pill-ghost">
+            <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost">
+                <i class="bi bi-box-seam me-1"></i>Ver paquetes
+            </a>
+            <a href="{% url 'servicios:promociones' %}" class="btn-pill-ghost" style="text-decoration: none;">
                 <i class="bi bi-tag-fill me-1"></i>Ver promociones
             </a>
-            <a href="{% url 'servicios:servicio_crear' %}" class="btn-pill-primary">
+            <a href="{% url 'servicios:crear' %}" class="btn-pill-primary" style="text-decoration: none;">
                 <i class="bi bi-plus-circle me-1"></i>Nuevo servicio
             </a>
         </div>
@@ -62,10 +65,10 @@
                                 <i class="bi bi-clock me-1" style="color: var(--dp-ambar);"></i>{{ servicio.duracion_hours|default:servicio.duracion_horas }} hrs
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'servicios:servicio_editar' servicio.pk %}" class="adm-action me-1" title="Editar">
+                                <a href="{% url 'servicios:editar' servicio.pk %}" class="adm-action me-1" title="Editar">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <a href="{% url 'servicios:servicio_eliminar' servicio.pk %}" class="adm-action adm-action-danger" title="Desactivar">
+                                <a href="{% url 'servicios:eliminar' servicio.pk %}" class="adm-action adm-action-danger" title="Desactivar">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>

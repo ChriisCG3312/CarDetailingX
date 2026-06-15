@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block titulo %}
+    {% if object %}
+        Editar paquete
+    {% else %}
+        Crear paquete
+    {% endif %}
+{% endblock %}
+
+{% block contenido %}
+<div class="container py-5">
+
+    <!-- Botón de regreso con estilo ghost -->
+    <div class="mb-4">
+        <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>Regresar a paquetes
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            
+            <div class="dp-eyebrow">Paquetes</div>
+            <h1 class="dp-title mb-3">
+                {% if object %}
+                    Editar paquete
+                {% else %}
+                    Crear nuevo paquete
+                {% endif %}
+            </h1>
+            
+            <p class="text-muted mb-4">
+                Configura un nuevo combo agrupando varios servicios individuales y define si deseas aplicarle un descuento inicial automático.
+            </p>
+
+            <!-- Contenedor Premium de Cueto -->
+            <div class="dp-card p-4 p-md-5">
+                {% if object %}
+                <div class="mb-4">
+                    <span class="dp-section-label">Paquete seleccionado</span>
+                    <div class="mt-2 px-3 py-2 rounded" style="background: var(--dp-papel-2); border: 1px solid #E4DFD6; font-family: var(--font-mono);">
+                        {{ object.nombre }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Formulario de Django -->
+                <form method="post" novalidate id="paqueteForm">
+                    {% csrf_token %}
+                    
+                    <!-- Renderiza dinámicamente los campos base y el descuento inicial una sola vez -->
+                    {% include "partials/_form_card.html" %}
+                    
+                    <!-- Apartado Dinámico: Visor de Servicios Seleccionados -->
+                    <div class="mb-4 mt-2">
+                        <label class="form-label fw-bold text-muted small" style="letter-spacing: 0.05em;">
+                            SERVICIOS QUE SE INCLUIRÁN EN ESTE COMBO:
+                        </label>
+                        <div id="visorServicios" class="d-flex flex-wrap gap-2 p-3 rounded" style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.15); min-height: 50px;">
+                            <span class="text-muted small italic" id="placeholderVisor">Ningún servicio seleccionado. Mantén presionado Ctrl para elegir varios arriba.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones inferiores alineados a la derecha -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'servicios:paquete_admin_list' %}" class="btn btn-secondary me-md-2">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Script en tiempo real para el visor de servicios -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Buscamos el elemento select de servicios que genera Django dentro del parcial
+        const selectServicios = document.querySelector("select[name='servicios']");
+        const visor = document.getElementById("visorServicios");
+        const placeholder = document.getElementById("placeholderVisor");
+
+        if (selectServicios && visor) {
+            function actualizarVisor() {
+                // Limpiamos los badges anteriores conservando el placeholder oculto si es necesario
+                visor.innerHTML = "";
+                let seleccionados = 0;
+
+                // Recorremos las opciones del select de Django
+                Array.from(selectServicios.options).forEach(option => {
+                    if (option.selected) {
+                        seleccionados++;
+                        // Creamos un badge elegante por cada servicio seleccionado
+                        const badge = document.createElement("span");
+                        badge.className = "badge bg-info text-dark fw-bold px-2 py-2 shadow-sm rounded-pill";
+                        badge.style.fontSize = "0.85rem";
+                        badge.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> ${option.text}`;
+                        visor.appendChild(badge);
+                    }
+                });
+
+                // Si no hay ninguno, volvemos a pintar el texto de ayuda
+                if (seleccionados === 0) {
+                    visor.appendChild(placeholder);
+                }
+            }
+
+            // Escuchamos los cambios del usuario en el cuadro de selección
+            selectServicios.addEventListener("change", actualizarVisor);
+            // Ejecutamos una vez al cargar por si estamos editando un paquete existente
+            actualizarVisor();
+        }
+    });
+</script>
+{% endblock %}
