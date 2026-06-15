@@ -25,4 +25,7 @@ urlpatterns = [
     path('admin/paquetes/nuevo/', views.PaqueteCreateView.as_view(), name='paquete_crear'),
     path('admin/paquetes/<int:pk>/editar/', views.PaqueteUpdateView.as_view(), name='paquete_editar'),
     path('admin/paquetes/<int:pk>/eliminar/', views.PaqueteDeleteView.as_view(), name='paquete_eliminar'),
+
+    # Flujo para Clientes (Paquete Personalizado)
+    path('paquete/personalizado/', views.PaquetePersonalizadoCreateView.as_view(), name='paquete_personalizado_crear'),
 ]

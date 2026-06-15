@@ -5,10 +5,13 @@ Responsable: D2
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from .forms import ServicioForm, PromocionForm, PaqueteForm, PaquetePersonalizadoForm
 
 from .models import Servicio, Promocion, Paquete
 from .forms import ServicioForm, PromocionForm, PaqueteForm
 from apps.usuarios.mixins import AdminRequiredMixin, LoginRequiredMixin
+
+from django.shortcuts import render, redirect
 
 
 # ── Servicios ─────────────────────────────────────────────────────────────────
@@ -194,3 +197,34 @@ class PaqueteDeleteView(AdminRequiredMixin, DeleteView):
         messages.success(self.request, 'Paquete eliminado correctamente.')
         return super().form_valid(form)
 
+class PaquetePersonalizadoCreateView(LoginRequiredMixin, CreateView):
+    """Permite al cliente diseñar su propio paquete seleccionando múltiples servicios."""
+    model = Paquete
+    form_class = PaquetePersonalizadoForm
+    template_name = 'servicios/paquete_personalizado_form.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Diseñar mi paquete'
+        return ctx
+
+    def form_valid(self, form):
+        # Creamos la instancia en memoria sin guardarla en la BD todavía
+        paquete = form.save(commit=False)
+        
+        # Automatizamos los datos del paquete personalizado
+        paquete.nombre = f"Personalizado - {self.request.user.username}"
+        paquete.descripcion = f"Paquete a la medida diseñado por el cliente {self.request.user.get_full_name() or self.request.user.username}"
+        paquete.es_personalizado = True
+        paquete.activo = True
+        
+        # Guardamos el paquete en la BD para generar su ID
+        paquete.save()
+        
+        # Guardamos las relaciones ManyToMany (los servicios seleccionados)
+        form.save_m2m()
+        
+        messages.success(self.request, "¡Tu paquete personalizado ha sido diseñado! Procede a elegir fecha y hora para tu cita.")
+        
+        # Redirigimos al flujo de citas pasándole el ID del paquete en la URL
+        return redirect(f"{reverse_lazy('citas:crear')}?paquete_id={paquete.id}")
