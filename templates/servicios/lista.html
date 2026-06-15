@@ -1,67 +1,77 @@
 {% extends "base.html" %}
+{% block titulo %}Catálogo de servicios{% endblock %}
 
 {% block contenido %}
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="text-dark fw-bold"><i class="bi bi-stars text-info"></i> Nuestro Catálogo de Servicios</h1>
-        <p class="text-muted fs-5">Ofrecemos el mejor cuidado y detallado profesional para tu vehículo</p>
-    </div>
+<div class="mb-5">
+  <p class="dp-eyebrow text-center" style="color: var(--dp-ceramico);">Catálogo</p>
+  <h1 class="dp-title text-center" style="font-size: clamp(1.9rem, 4vw, 2.6rem);">
+    Lo que hacemos por tu auto
+  </h1>
+  <p class="text-muted text-center fs-6 mb-0">
+    Lavado, pulido y protección profesional para tu vehículo
+  </p>
+</div>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for servicio in servicios %}
-        <div class="col">
-            <div class="card h-100 bg-dark text-white border-secondary shadow">
-                {% if servicio.imagen %}
-                    <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 220px; object-fit: cover;">
-                {% else %}
-                    <div class="bg-secondary text-white d-flex flex-column align-items-center justify-content-center" style="height: 220px;">
-                        <i class="bi bi-image fs-1 mb-2"></i>
-                        <span class="small text-uppercase">Sin imagen disponible</span>
-                    </div>
-                {% endif %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {% for servicio in servicios %}
+  <div class="col">
+    <div class="card h-100 dp-card border-0 overflow-hidden">
+      {% if servicio.imagen %}
+      <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 200px; object-fit: cover;">
+      {% else %}
+      <div class="d-flex flex-column align-items-center justify-content-center" style="height: 200px; background: var(--dp-papel-2);">
+        <i class="bi bi-image fs-1 mb-2" style="color: #C9C2B5;"></i>
+        <span class="small text-uppercase" style="font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; color: #B0AAA0;">
+          Sin imagen disponible
+        </span>
+      </div>
+      {% endif %}
 
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-info fw-bold mb-2">{{ servicio.nombre }}</h5>
-                    <p class="card-text text-muted flex-grow-1 small">{{ servicio.descripcion }}</p>
-                    
-                    <div class="mt-3 pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="text-muted d-block small">Duración est.</span>
-                            <span class="fw-bold"><i class="bi bi-clock text-warning"></i> {{ servicio.duracion_horas }} hrs</span>
-                        </div>
-                        <div class="text-end">
-                            <span class="text-muted d-block small">Precio</span>
-                            {% if servicio.precio != servicio.precio_con_promocion %}
-                            <span class="text-danger text-decoration-line-through d-block mb-1" style="font-size: 20px">
-                            ${{ servicio.precio }}
-                            </span>
-                            <span class="text-success fw-bold fs-5 d-block">
-                                ${{ servicio.precio_con_promocion }} MXN
-                            </span>
-                            {% else %}
-                            <span class="text-success fw-bold fs-5 d-block">
-                                ${{ servicio.precio }} MXN
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card-footer bg-transparent border-secondary p-3">
-                    <div class="d-grid">
-                        <a href="{% url 'citas:crear' %}?servicio={{ servicio.id }}" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-calendar-event"></i> Agendar este servicio
-                        </a>
-                    </div>
-                </div>
-            </div>
+      <div class="card-body d-flex flex-column p-4">
+        <h3 class="fw-bold mb-2" style="font-family: var(--font-display); font-size: 1.25rem; color: var(--dp-carbon);">
+          {{ servicio.nombre }}
+        </h3>
+        <p class="flex-grow-1 small mb-0" style="color: #6B665E;">{{ servicio.descripcion }}</p>
+
+        <div class="mt-3 pt-3 d-flex justify-content-between align-items-center" style="border-top: 1px dashed #E4DFD6;">
+          <div>
+            <span class="d-block small" style="color: #9A948A; font-size: 0.75rem;">Duración est.</span>
+            <span class="fw-bold" style="font-family: var(--font-mono); color: var(--dp-carbon);">
+              <i class="bi bi-clock me-1" style="color: var(--dp-ambar);"></i>{{ servicio.duracion_horas }} hrs
+            </span>
+          </div>
+          <div class="text-end">
+            <span class="d-block small" style="color: #9A948A; font-size: 0.75rem;">Precio</span>
+            {% if servicio.precio != servicio.precio_con_promocion %}
+            <span class="d-block mb-0" style="font-family: var(--font-mono); font-size: 0.85rem; color: #B0AAA0; text-decoration: line-through;">
+              ${{ servicio.precio }}
+            </span>
+            <span class="fw-bold d-block" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--dp-ceramico);">
+              ${{ servicio.precio_con_promocion }} MXN
+            </span>
+            {% else %}
+            <span class="fw-bold d-block" style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--dp-carbon);">
+              ${{ servicio.precio }} MXN
+            </span>
+            {% endif %}
+          </div>
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5 text-muted">
-            <i class="bi bi-emoji-frown fs-1 d-block mb-3"></i>
-            Por el momento no hay servicios disponibles en el catálogo público.
+      </div>
+
+      <div class="card-footer bg-transparent border-0 p-4 pt-0">
+        <div class="d-grid">
+          <a href="{% url 'citas:crear' %}?servicio={{ servicio.id }}" class="btn-pill-primary justify-content-center">
+            <i class="bi bi-calendar-event me-1"></i>Agendar este servicio
+          </a>
         </div>
-        {% endfor %}
+      </div>
     </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5" style="color: #9A948A;">
+    <i class="bi bi-emoji-frown fs-1 d-block mb-3"></i>
+    Por el momento no hay servicios disponibles en el catálogo público.
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}

@@ -14,6 +14,12 @@
   --dp-ceramico: #2F6F5E;
   --dp-ceramico-2: #4FA08A;
   --dp-cromo: #C9CED4;
+  --dp-asfalto-2: #1B1F25;
+  --dp-papel-2: #EFEAE2;
+
+  --font-display: 'Big Shoulders Display', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Space Mono', monospace;
 }
 
 /* Layout base */
@@ -24,6 +30,7 @@ body {
   flex-direction: column;
   background-color: var(--dp-light);
   font-size: 0.95rem;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 main.container-fluid {
@@ -105,4 +112,208 @@ main.container-fluid {
 body.page-landing main.container-fluid {
   max-width: none;
   padding: 0;
+}
+.dp-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--dp-ceramico);
+  margin-bottom: 0.25rem;
+}
+
+.dp-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--dp-carbon);
+  margin: 0;
+}
+
+.dp-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #9A948A;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Botones pill ─────────────────────────────────────────────────────── */
+
+.btn-pill-primary {
+  background: var(--dp-ambar);
+  color: var(--dp-asfalto);
+  font-weight: 700;
+  border-radius: 999px;
+  border: none;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-pill-primary:hover {
+  background: var(--dp-ambar-2);
+  color: var(--dp-asfalto);
+  transform: translateY(-1px);
+}
+
+.btn-pill-ghost {
+  border: 1px solid #E4DFD6;
+  color: var(--dp-carbon);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.btn-pill-ghost:hover {
+  border-color: var(--dp-carbon);
+  background: var(--dp-papel-2);
+  color: var(--dp-carbon);
+}
+
+/* ── Tarjetas ─────────────────────────────────────────────────────────── */
+
+.dp-card {
+  background: #fff;
+  border: 1px solid #ECE8E0;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px -6px rgba(31, 35, 41, 0.10);
+}
+
+/* ── Badges de rol ────────────────────────────────────────────────────── */
+
+.badge-rol {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  display: inline-block;
+}
+.badge-rol-admin   { background: var(--dp-asfalto); color: var(--dp-ambar); }
+.badge-rol-cliente { background: var(--dp-ceramico); color: #fff; }
+.badge-rol-tecnico { background: var(--dp-ambar); color: var(--dp-asfalto); }
+
+/* ── Badges de estado (activo/inactivo) ──────────────────────────────── */
+
+.badge-estado-activo,
+.badge-estado-inactivo {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  display: inline-block;
+}
+.badge-estado-activo   { background: #E3F0EA; color: var(--dp-ceramico); }
+.badge-estado-inactivo { background: #F6E7E2; color: #B5563E; }
+
+/* ── Foco de inputs con acento ámbar ──────────────────────────────────── */
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--dp-ambar);
+  box-shadow: 0 0 0 3px rgba(232, 162, 61, 0.18);
+}
+
+/* ── Navbar ───────────────────────────────────────────────────────────── */
+
+.dp-navbar {
+  background: var(--dp-asfalto);
+}
+
+.dp-navbar .navbar-brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.dp-navbar .navbar-brand .accent {
+  color: var(--dp-ambar);
+}
+
+.dp-navbar .nav-link {
+  color: var(--dp-cromo);
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition: color 0.15s ease;
+}
+
+.dp-navbar .nav-link:hover,
+.dp-navbar .nav-link:focus,
+.dp-navbar .nav-link.show {
+  color: var(--dp-papel);
+}
+
+.dp-navbar .dropdown-menu {
+  background: var(--dp-asfalto-2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.4rem;
+}
+
+.dp-navbar .dropdown-item {
+  color: var(--dp-cromo);
+  font-size: 0.9rem;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
+.dp-navbar .dropdown-item:hover,
+.dp-navbar .dropdown-item:focus {
+  background: rgba(232, 162, 61, 0.12);
+  color: var(--dp-ambar);
+}
+
+.dp-navbar .dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dp-navbar .dropdown-item-text {
+  font-size: 0.82rem;
+}
+
+.notif-badge {
+  background: var(--dp-ambar);
+  color: var(--dp-asfalto);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+
+.dp-footer {
+  background: var(--dp-asfalto);
+  color: var(--dp-cromo);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Inputs generados automáticamente por Django en formularios ────────── */
+
+.dp-card .form-control,
+.dp-card .form-select,
+.dp-card textarea {
+  border-radius: 10px;
+  border-color: #E4DFD6;
+  padding: 0.55rem 0.9rem;
+}
+
+.dp-card .form-check-input:checked {
+  background-color: var(--dp-ceramico);
+  border-color: var(--dp-ceramico);
 }
