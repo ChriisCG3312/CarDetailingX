@@ -13,7 +13,35 @@ from django.db.models import Q
 from .forms import LoginForm, RegistroUsuarioForm, UsuarioAdminCreateForm, UsuarioAdminEditForm
 from .models import Usuario
 from apps.usuarios.mixins import AdminRequiredMixin
+from django.utils import timezone
 
+# ── Landing pública ──────────────────────────────────────────────────────────
+
+class LandingView(View):
+    """
+    Página pública de bienvenida. Muestra servicios y promociones
+    sin requerir inicio de sesión.
+    Si el usuario ya tiene sesión activa, lo manda directo al dashboard.
+    """
+    template_name = 'landing.html'
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('dashboard:home')
+
+        from apps.servicios.models import Servicio, Promocion
+
+        servicios = Servicio.objects.filter(activo=True)[:6]
+        promo = Promocion.objects.filter(
+            activa=True,
+            fecha_inicio__lte=timezone.now().date(),
+            fecha_fin__gte=timezone.now().date(),
+        ).select_related('servicio').first()
+
+        return render(request, self.template_name, {
+            'servicios': servicios,
+            'promo': promo,
+        })
 
 # ── Autenticación ──────────────────────────────────────────────────────────────
 
