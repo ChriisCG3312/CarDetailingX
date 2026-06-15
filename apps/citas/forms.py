@@ -16,11 +16,11 @@ class VehiculoForm(forms.ModelForm):
         model = Vehiculo
         fields = ('marca', 'modelo', 'anio', 'color', 'placas', 'foto')
         widgets = {
-            'marca': forms.TextInput(attrs={'class': 'form-control'}),
-            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
-            'anio': forms.NumberInput(attrs={'class': 'form-control', 'min': 1990}),
-            'color': forms.TextInput(attrs={'class': 'form-control'}),
-            'placas': forms.TextInput(attrs={'class': 'form-control'}),
+            'marca': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Ej. Honda'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Ej. Civic'}),
+            'anio': forms.NumberInput(attrs={'class': 'form-control', 'min': 1990, 'required': True, 'placeholder': 'Ej. 2020'}),
+            'color': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Ej. Blanco'}),
+            'placas': forms.TextInput(attrs={'class': 'form-control', 'required': True, 'placeholder': 'Ej. ABC-123-D'}),
             'foto': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
