@@ -317,3 +317,81 @@ body.page-landing main.container-fluid {
   background-color: var(--dp-ceramico);
   border-color: var(--dp-ceramico);
 }
+
+/* ── Tablas administrativas ───────────────────────────────────────────── */
+
+.adm-table {
+  margin-bottom: 0;
+}
+
+.adm-table thead th {
+  background: var(--dp-asfalto);
+  color: white;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1rem;
+}
+
+.adm-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-color: #ECE8E0;
+}
+
+/* ── Acciones administrativas ─────────────────────────────────────────── */
+
+.adm-action,
+.adm-action-danger,
+.adm-action-success {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  margin: 0 2px;
+  transition: all 0.15s ease;
+}
+
+.adm-action {
+  background: rgba(47, 111, 94, 0.12);
+  color: var(--dp-ceramico);
+}
+
+.adm-action:hover {
+  background: rgba(47, 111, 94, 0.2);
+  color: var(--dp-ceramico);
+  transform: translateY(-1px);
+}
+
+.adm-action-danger {
+  background: #F6E7E2;
+  color: #B5563E;
+}
+
+.adm-action-danger:hover {
+  background: #EFD6CE;
+  color: #B5563E;
+  transform: translateY(-1px);
+}
+
+.adm-action-success {
+  background: #E3F0EA;
+  color: var(--dp-ceramico);
+}
+
+.adm-action-success:hover {
+  background: #D6EADF;
+  color: var(--dp-ceramico);
+  transform: translateY(-1px);
+}
+
+.adm-action i,
+.adm-action-danger i,
+.adm-action-success i {
+  font-size: 1.15rem;
+}
