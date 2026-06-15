@@ -154,3 +154,4 @@ class MarcarLeidaView(LoginRequiredMixin, View):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'ok': True})
         return redirect('seguimiento:notificaciones')
+

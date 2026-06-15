@@ -8,7 +8,6 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Redirige la raíz al dashboard o login
     path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
 
     # Apps
@@ -16,8 +15,9 @@ urlpatterns = [
     path('servicios/', include('apps.servicios.urls', namespace='servicios')),
     path('citas/', include('apps.citas.urls', namespace='citas')),
     path('seguimiento/', include('apps.seguimiento.urls', namespace='seguimiento')),
+    path('reportes/', include('apps.reportes.urls', namespace='reportes')),  # ← nueva
 
-    # Dashboard principal (cada app lo puede sobreescribir según el rol)
+    # Dashboard principal
     path('dashboard/', include('apps.usuarios.urls_dashboard', namespace='dashboard')),
 ]
 
