@@ -14,7 +14,9 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+
+  {% block before_main %}{% endblock %}
 
   {% if user.is_authenticated %}
   <!-- ── Navbar ─────────────────────────────────────────────────────────── -->
@@ -144,7 +146,7 @@
 
   <!-- ── Footer ────────────────────────────────────────────────────────── -->
   <footer class="bg-dark text-secondary text-center py-3 mt-auto small">
-    Detailing Pro &copy; {% now "Y" %} — Sistema de gestión interno
+    CarDetailingX &copy; {% now "Y" %} — Sistema de gestión interno
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
