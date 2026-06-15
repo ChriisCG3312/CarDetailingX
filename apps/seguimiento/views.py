@@ -35,7 +35,6 @@ class SeguimientoCrearView(AdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         seguimiento = form.save()
-        # Actualizar estado de la cita a en_proceso
         cita = seguimiento.cita
         cita.estado = Cita.Estado.EN_PROCESO
         cita.save()
@@ -60,11 +59,24 @@ class SeguimientoActualizarView(TecnicoRequiredMixin, UpdateView):
             Seguimiento.objects.select_related('cita__cliente', 'cita__servicio', 'tecnico'),
             pk=self.kwargs['pk'],
         )
-        # Técnico solo puede editar sus propios seguimientos
         if self.request.user.es_tecnico and obj.tecnico != self.request.user:
             from django.core.exceptions import PermissionDenied
             raise PermissionDenied
         return obj
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj.estado == Seguimiento.Estado.ENTREGADO:
+            messages.error(request, 'Este servicio ya fue entregado al cliente y no puede modificarse.')
+            return redirect('seguimiento:lista')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj.estado == Seguimiento.Estado.ENTREGADO:
+            messages.error(request, 'Este servicio ya fue entregado al cliente y no puede modificarse.')
+            return redirect('seguimiento:lista')
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         messages.success(self.request, 'Estado actualizado correctamente.')
@@ -87,11 +99,9 @@ class SeguimientoListaView(LoginRequiredMixin, ListView):
         qs = Seguimiento.objects.select_related(
             'cita__cliente', 'cita__servicio', 'cita__vehiculo', 'tecnico'
         )
-        # Por defecto ocultar entregados
         if not self.request.GET.get('ver_entregados'):
             qs = qs.exclude(estado=Seguimiento.Estado.ENTREGADO)
 
-        # Técnico solo ve los suyos
         if self.request.user.es_tecnico:
             qs = qs.filter(tecnico=self.request.user)
 
@@ -115,7 +125,6 @@ class SeguimientoDetalleClienteView(LoginRequiredMixin, DetailView):
             Seguimiento.objects.select_related('cita__cliente', 'cita__servicio', 'tecnico'),
             pk=self.kwargs['pk'],
         )
-        # Cliente solo ve sus propios seguimientos
         if self.request.user.es_cliente and obj.cita.cliente != self.request.user:
             from django.core.exceptions import PermissionDenied
             raise PermissionDenied
@@ -150,8 +159,6 @@ class MarcarLeidaView(LoginRequiredMixin, View):
         notif = get_object_or_404(Notificacion, pk=pk, usuario=request.user)
         notif.leida = True
         notif.save()
-        # Soporte para peticiones AJAX
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'ok': True})
         return redirect('seguimiento:notificaciones')
-

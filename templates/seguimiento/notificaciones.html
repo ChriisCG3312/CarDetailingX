@@ -36,7 +36,7 @@
           <div class="text-end text-nowrap">
             <small class="text-muted d-block">{{ notif.creada_en|date:"d/m/Y H:i" }}</small>
             {% if not notif.leida %}
-            <form method="post" action="{% url 'seguimiento:marcar_leida' notif.pk %}" class="mt-1">
+            <form method="post" action="{% url 'seguimiento:marcar_leida' notif.pk %}">
               {% csrf_token %}
               <button type="submit" class="btn btn-link btn-sm p-0 text-muted">
                 Marcar leída
@@ -45,13 +45,17 @@
             {% endif %}
           </div>
         </div>
+
         {% if notif.cita %}
-        <div class="mt-1">
-          <a href="{% url 'seguimiento:detalle_cliente' notif.cita.seguimiento.pk %}" class="small text-decoration-none">
-            <i class="bi bi-arrow-right me-1"></i>Ver detalle del servicio
-          </a>
-        </div>
+          {% if notif.cita.seguimiento %}
+          <div class="mt-1">
+            <a href="{% url 'seguimiento:detalle_cliente' notif.cita.seguimiento.pk %}" class="small text-decoration-none">
+              <i class="bi bi-arrow-right me-1"></i>Ver detalle del servicio
+            </a>
+          </div>
+          {% endif %}
         {% endif %}
+
       </div>
       {% endfor %}
     </div>
