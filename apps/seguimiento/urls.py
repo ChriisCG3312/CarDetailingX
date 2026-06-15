@@ -15,4 +15,5 @@ urlpatterns = [
     path('notificaciones/',               views.NotificacionListaView.as_view(),    name='notificaciones'),
     path('notificaciones/marcar-todas/',  views.MarcarTodasLeidasView.as_view(),    name='marcar_todas'),
     path('notificaciones/<int:pk>/leer/', views.MarcarLeidaView.as_view(),          name='marcar_leida'),
+    
 ]

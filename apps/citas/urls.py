@@ -25,4 +25,5 @@ urlpatterns = [
     
     # API
      path('api/horarios/', views.HorariosDisponiblesView.as_view(), name='api_horarios'),
-]
+     path('api/precio/', views.PrecioCitaView.as_view(), name='api_precio'),    
+] 

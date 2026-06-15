@@ -175,7 +175,7 @@ class CitaConfirmarView(AdminRequiredMixin, UpdateView):
         cita.estado = Cita.Estado.CONFIRMADA
         cita.save()
         messages.success(self.request, f'Cita #{cita.pk} confirmada.')
-        return redirect(self.success_url)
+        return redirect('seguimiento:crear')
 
 
 class CitaCancelarView(LoginRequiredMixin, UpdateView):
@@ -220,9 +220,18 @@ class PagoCreateView(AdminRequiredMixin, CreateView):
     template_name = 'citas/pago_form.html'
     success_url = reverse_lazy('citas:lista')
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        siguiente = Pago.objects.count() + 1
+        ctx['folio_preview'] = f'FOLIO-{siguiente:04d}'
+        return ctx
+
     def form_valid(self, form):
-        messages.success(self.request, 'Pago registrado.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.object.referencia = f'FOLIO-{self.object.pk:04d}'
+        self.object.save()
+        messages.success(self.request, f'Pago registrado. Folio: {self.object.referencia}')
+        return response
 
 
 # ── Agenda del día ────────────────────────────────────────────────────────────
@@ -293,3 +302,46 @@ class HorariosDisponiblesView(LoginRequiredMixin, View):
             })
 
         return JsonResponse({'slots': slots, 'fecha': fecha_str})
+class PrecioCitaView(LoginRequiredMixin, View):
+    """
+    GET /citas/api/precio/?cita_id=1
+    Devuelve el precio del servicio con descuento si aplica.
+    """
+    http_method_names = ['get']
+
+    def get(self, request):
+        cita_id = request.GET.get('cita_id')
+        if not cita_id:
+            return JsonResponse({'error': 'Falta cita_id'}, status=400)
+
+        try:
+            cita = Cita.objects.select_related('servicio').get(pk=cita_id)
+        except Cita.DoesNotExist:
+            return JsonResponse({'error': 'Cita no encontrada'}, status=404)
+
+        servicio = cita.servicio
+        precio_original = float(servicio.precio)
+        precio_final = precio_original
+        descuento_pct = 0
+        promo_nombre = None
+
+        from apps.servicios.models import Promocion
+        hoy = timezone.localdate()
+        promo = Promocion.objects.filter(
+            servicio=servicio,
+            activa=True,
+            fecha_inicio__lte=hoy,
+            fecha_fin__gte=hoy,
+        ).first()
+
+        if promo:
+            descuento_pct = float(promo.descuento_pct)
+            precio_final = round(precio_original * (1 - descuento_pct / 100), 2)
+            promo_nombre = promo.descripcion
+
+        return JsonResponse({
+            'precio_original': precio_original,
+            'descuento_pct': descuento_pct,
+            'precio_final': precio_final,
+            'promo': promo_nombre,
+        })

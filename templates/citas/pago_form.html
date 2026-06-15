@@ -13,43 +13,67 @@
         <h1 class="h3 mb-0">Registrar pago</h1>
       </div>
 
-      {% if messages %}
-        {% for msg in messages %}
-          <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
-            {{ msg }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-
       <div class="card border-0 shadow-sm">
         <div class="card-body p-4">
-          <form method="post" novalidate>
+          <form method="post" novalidate id="pago-form">
             {% csrf_token %}
+
+            {# Campos ocultos que Django recibe #}
+            <input type="hidden" name="monto" id="monto_input">
+            <input type="hidden" name="cita" id="cita_hidden">
 
             <div class="row g-3">
 
+              {# Cita — no editable, solo lectura visual #}
               <div class="col-12">
-                <label for="{{ form.cita.id_for_label }}" class="form-label">Cita</label>
-                {{ form.cita }}
+                <label class="form-label">Cita</label>
+                <input type="text" id="cita_display" class="form-control bg-light"
+                       readonly tabindex="-1" placeholder="Cargando...">
+                {# Select oculto para cargar opciones pero no visible #}
+                <div style="display:none">{{ form.cita }}</div>
                 {% if form.cita.errors %}
                   <div class="invalid-feedback d-block">{{ form.cita.errors.0 }}</div>
                 {% endif %}
-                <div class="form-text">Solo se muestran citas terminadas sin pago registrado.</div>
               </div>
 
-              <div class="col-12 col-sm-6">
-                <label for="{{ form.monto.id_for_label }}" class="form-label">Monto pagado</label>
+              {# Descuento si aplica #}
+              <div id="info-servicio" class="col-12" style="display:none">
+                <p id="texto-descuento" class="text-success small mb-0" style="display:none">
+                  <i class="bi bi-tag me-1"></i><span id="descuento-label"></span>
+                </p>
+              </div>
+
+              {# Monto — no editable #}
+              <div class="col-12 col-sm-6" id="monto-container" style="display:none">
+                <label class="form-label">Monto del servicio</label>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
-                  {{ form.monto }}
+                  <input type="text" id="monto_display" class="form-control bg-light"
+                         readonly tabindex="-1">
                 </div>
-                {% if form.monto.errors %}
-                  <div class="invalid-feedback d-block">{{ form.monto.errors.0 }}</div>
-                {% endif %}
               </div>
 
-              <div class="col-12 col-sm-6">
+              {# Propina — editable #}
+              <div class="col-12 col-sm-6" id="propina-container" style="display:none">
+                <label for="propina_input" class="form-label">
+                  Propina <span class="text-muted small">(opcional)</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" id="propina_input" class="form-control"
+                         min="0" step="0.01" value="0" oninput="recalcularTotal()">
+                </div>
+              </div>
+
+              {# Total final #}
+              <div class="col-12" id="total-container" style="display:none">
+                <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-1">
+                  <span class="fw-semibold">Total a cobrar</span>
+                  <span id="total_display" class="fw-bold fs-5"></span>
+                </div>
+              </div>
+
+              <div class="col-12">
                 <label for="{{ form.metodo.id_for_label }}" class="form-label">Método de pago</label>
                 {{ form.metodo }}
                 {% if form.metodo.errors %}
@@ -57,14 +81,11 @@
                 {% endif %}
               </div>
 
+              {# Folio — autogenerado, solo lectura #}
               <div class="col-12">
-                <label for="{{ form.referencia.id_for_label }}" class="form-label">
-                  Referencia / Folio <span class="text-muted small">(opcional)</span>
-                </label>
-                {{ form.referencia }}
-                {% if form.referencia.errors %}
-                  <div class="invalid-feedback d-block">{{ form.referencia.errors.0 }}</div>
-                {% endif %}
+                <label class="form-label">Folio</label>
+                <input type="text" class="form-control bg-light" readonly tabindex="-1"
+                       value="{{ folio_preview }}">
               </div>
 
               {% if form.non_field_errors %}
@@ -81,7 +102,9 @@
 
             <div class="d-flex justify-content-end gap-2 mt-4">
               <a href="{% url 'citas:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
-              <button type="submit" class="btn btn-primary">Registrar pago</button>
+              <button type="submit" class="btn btn-primary" id="btn-submit" disabled>
+                Registrar pago
+              </button>
             </div>
 
           </form>
@@ -91,4 +114,81 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const API_PRECIO = "{% url 'citas:api_precio' %}";
+let precioServicio = 0;
+
+const selectCita = document.getElementById('{{ form.cita.id_for_label }}');
+const citaDisplay = document.getElementById('cita_display');
+const citaHidden = document.getElementById('cita_hidden');
+
+async function cargarCita(citaId) {
+  if (!citaId) return;
+
+  // mostrar texto de la opción seleccionada
+  const opcion = selectCita.querySelector(`option[value="${citaId}"]`);
+  if (opcion) citaDisplay.value = opcion.textContent.trim();
+  citaHidden.value = citaId;
+
+  // reset
+  precioServicio = 0;
+  document.getElementById('monto_input').value = '';
+  document.getElementById('monto_display').value = '';
+  document.getElementById('total_display').textContent = '';
+  document.getElementById('propina_input').value = '0';
+  document.getElementById('info-servicio').style.display = 'none';
+  document.getElementById('monto-container').style.display = 'none';
+  document.getElementById('propina-container').style.display = 'none';
+  document.getElementById('total-container').style.display = 'none';
+  document.getElementById('texto-descuento').style.display = 'none';
+  document.getElementById('btn-submit').disabled = true;
+
+  try {
+    const resp = await fetch(`${API_PRECIO}?cita_id=${citaId}`);
+    const data = await resp.json();
+    if (data.error) return;
+
+    precioServicio = data.precio_final;
+
+    if (data.descuento_pct > 0) {
+      document.getElementById('descuento-label').textContent =
+        `Este servicio tiene descuento del ${data.descuento_pct}%`;
+      document.getElementById('texto-descuento').style.display = 'block';
+    }
+
+    document.getElementById('info-servicio').style.display = 'block';
+    document.getElementById('monto-container').style.display = 'block';
+    document.getElementById('propina-container').style.display = 'block';
+    document.getElementById('total-container').style.display = 'block';
+
+    recalcularTotal();
+    document.getElementById('btn-submit').disabled = false;
+
+  } catch(e) {
+    console.error('Error al cargar precio:', e);
+  }
+}
+
+function recalcularTotal() {
+  const propina = parseFloat(document.getElementById('propina_input').value) || 0;
+  const total = precioServicio + propina;
+
+  document.getElementById('monto_display').value =
+    precioServicio.toLocaleString('es-MX', {minimumFractionDigits: 2});
+  document.getElementById('total_display').textContent =
+    `$${total.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+  document.getElementById('monto_input').value = total.toFixed(2);
+}
+
+// preseleccionar cita desde URL ?cita=pk
+const params = new URLSearchParams(window.location.search);
+const citaParam = params.get('cita');
+if (citaParam) {
+  selectCita.value = citaParam;
+  cargarCita(citaParam);
+}
+</script>
 {% endblock %}

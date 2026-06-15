@@ -1,147 +1,118 @@
 {% extends "base.html" %}
+{% load static %}
 {% block titulo %}Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block contenido %}
-<div class="row mb-4 align-items-center">
-  <div class="col">
-    <h1 class="h3 mb-0">
-      Bienvenido, {{ usuario.first_name|default:usuario.username }}
-      <span class="badge bg-secondary fs-6 ms-2">{{ usuario.get_rol_display }}</span>
-    </h1>
+
+<!-- ── Encabezado ──────────────────────────────────────────────────────── -->
+<div class="mb-4">
+  <p class="dash-eyebrow">Panel de control</p>
+  <div class="d-flex flex-wrap align-items-center gap-3">
+    <h1 class="dash-title mb-0">Hola, {{ usuario.first_name|default:usuario.username }}</h1>
+    <span class="dash-role-badge">{{ usuario.get_rol_display }}</span>
   </div>
 </div>
 
-<!-- ── Tarjetas de acceso rápido según rol ─────────────────────────────── -->
+<!-- ── Admin ───────────────────────────────────────────────────────────── -->
 {% if usuario.es_admin %}
-<div class="row g-3 mb-4">
+<p class="dash-section-label">Accesos rápidos</p>
+<div class="dash-grid cols-4">
 
-  <div class="col-sm-6 col-lg-3">
-    <div class="card border-0 bg-primary text-white h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-people-fill fs-1"></i>
-
-        <div>
-          <div class="fs-5 fw-bold">Usuarios</div>
-
-          <div class="small">
-            {{ total_usuarios }} usuarios registrados
-          </div>
-
-          <a href="{% url 'usuarios:lista' %}"
-             class="text-white-50 small">
-            Ver todos →
-          </a>
-        </div>
-      </div>
+  <a href="{% url 'usuarios:lista' %}" class="dash-card">
+    <div class="dash-card-icon dci-ceramico"><i class="bi bi-people-fill"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Usuarios</div>
+      <div class="dash-card-sub">{{ total_usuarios }} registrados</div>
+      <span class="dash-card-link">Ver todos →</span>
     </div>
-  </div>
+  </a>
 
-  <div class="col-sm-6 col-lg-3">
-    <div class="card border-0 bg-success text-white h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-stars fs-1"></i>
-
-        <div>
-          <div class="fs-5 fw-bold">Servicios</div>
-
-          <div class="small">
-            Pendiente módulo D2
-          </div>
-
-          <a href="{% url 'servicios:admin_lista' %}"
-             class="text-white-50 small">
-            Gestionar →
-          </a>
-        </div>
-      </div>
+  <a href="{% url 'servicios:admin_lista' %}" class="dash-card">
+    <div class="dash-card-icon dci-ambar"><i class="bi bi-stars"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Servicios</div>
+      <div class="dash-card-sub">{{ total_servicios }} disponibles</div>
+      <span class="dash-card-link">Gestionar →</span>
     </div>
-  </div>
+  </a>
 
-  <div class="col-sm-6 col-lg-3">
-    <div class="card border-0 bg-warning text-dark h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-calendar3 fs-1"></i>
-
-        <div>
-          <div class="fs-5 fw-bold">Agenda</div>
-
-          <div class="small">
-            {{ servicios_pendientes }} servicios pendientes
-          </div>
-
-          <a href="{% url 'citas:lista' %}"
-             class="text-dark small">
-            Ver agenda →
-          </a>
-        </div>
-      </div>
+  <a href="{% url 'citas:lista' %}" class="dash-card dash-card-dark">
+    <div class="dash-card-icon dci-asfalto" style="background: rgba(255,255,255,0.08);"><i class="bi bi-calendar3" style="color: var(--dash-ambar);"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Agenda</div>
+      <div class="dash-card-sub">{{ servicios_pendientes }} pendientes</div>
+      <span class="dash-card-link">Ver agenda →</span>
     </div>
-  </div>
+  </a>
 
-  <div class="col-sm-6 col-lg-3">
-    <div class="card border-0 bg-info text-dark h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-clipboard2-check fs-1"></i>
-
-        <div>
-          <div class="fs-5 fw-bold">Seguimiento</div>
-
-          <div class="small">
-            Pendiente módulo D4
-          </div>
-
-          <a href="{% url 'seguimiento:lista' %}"
-             class="text-dark small">
-            Ver activos →
-          </a>
-        </div>
-      </div>
+  <a href="{% url 'seguimiento:lista' %}" class="dash-card">
+    <div class="dash-card-icon dci-teal"><i class="bi bi-clipboard2-check"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Seguimiento</div>
+      <div class="dash-card-sub">{{ servicios_activos }} activos</div>
+      <span class="dash-card-link">Ver todos →</span>
     </div>
-  </div>
+  </a>
+
+  <a href="{% url 'reportes:dashboard' %}" class="dash-card">
+    <div class="dash-card-icon dci-teal"><i class="bi bi-clipboard2-check"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Reportes</div>
+      <div class="dash-card-sub">Análisis de servicios y clientes</div>
+      <span class="dash-card-link">Ver todos →</span>
+    </div>
+  </a>
 
 </div>
 {% endif %}
-  
+
+<!-- ── Cliente ─────────────────────────────────────────────────────────── -->
 {% if usuario.es_cliente %}
-<div class="row g-3 mb-4">
-  <div class="col-sm-6">
-    <div class="card border-0 bg-primary text-white h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-calendar-plus fs-1"></i>
-        <div>
-          <div class="fs-5 fw-bold">Agendar cita</div>
-          <a href="{% url 'citas:crear' %}" class="text-white-50 small">Nueva cita →</a>
-        </div>
-      </div>
+<p class="dash-section-label">Accesos rápidos</p>
+<div class="dash-grid">
+
+  <a href="{% url 'citas:crear' %}" class="dash-card dash-card-featured">
+    <div class="dash-card-icon"><i class="bi bi-calendar-plus"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Agendar cita</div>
+      <div class="dash-card-sub">Reserva tu próximo servicio</div>
+      <span class="dash-card-link">Nueva cita →</span>
     </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card border-0 bg-secondary text-white h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-car-front fs-1"></i>
-        <div>
-          <div class="fs-5 fw-bold">Mis vehículos</div>
-          <a href="{% url 'citas:vehiculos' %}" class="text-white-50 small">Ver vehículos →</a>
-        </div>
-      </div>
+  </a>
+
+  <a href="{% url 'citas:vehiculos' %}" class="dash-card">
+    <div class="dash-card-icon dci-ceramico"><i class="bi bi-car-front"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Mis vehículos</div>
+      <div class="dash-card-sub">Administra tus autos registrados</div>
+      <span class="dash-card-link">Ver vehículos →</span>
     </div>
-  </div>
+  </a>
+
 </div>
 {% endif %}
 
+<!-- ── Técnico ─────────────────────────────────────────────────────────── -->
 {% if usuario.es_tecnico %}
-<div class="row g-3 mb-4">
-  <div class="col-sm-6">
-    <div class="card border-0 bg-info text-dark h-100">
-      <div class="card-body d-flex align-items-center gap-3">
-        <i class="bi bi-wrench-adjustable fs-1"></i>
-        <div>
-          <div class="fs-5 fw-bold">Mis servicios activos</div>
-          <a href="{% url 'seguimiento:lista' %}" class="text-dark-50 small">Ver asignados →</a>
-        </div>
-      </div>
+<p class="dash-section-label">Accesos rápidos</p>
+<div class="dash-grid">
+
+  <a href="{% url 'seguimiento:lista' %}" class="dash-card dash-card-dark">
+    <div class="dash-card-icon" style="background: rgba(255,255,255,0.08);"><i class="bi bi-wrench-adjustable" style="color: var(--dash-ambar);"></i></div>
+    <div class="dash-card-body">
+      <div class="dash-card-label">Mis servicios activos</div>
+      <div class="dash-card-sub">Vehículos asignados para hoy</div>
+      <span class="dash-card-link">Ver asignados →</span>
     </div>
-  </div>
+  </a>
+
 </div>
 {% endif %}
 
