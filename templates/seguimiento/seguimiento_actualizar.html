@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block titulo %}Actualizar servicio{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="mb-4">
+            <div class="dp-eyebrow">Seguimiento</div>
+
+            <h1 class="dp-title">
+                Actualizar estado del servicio
+            </h1>
+        </div>
+
+        <!-- Resumen de la cita -->
+        <div class="dp-card p-4 mb-4">
+
+            <div class="d-flex align-items-start gap-3">
+
+                <div class="adm-action-success flex-shrink-0">
+                    <i class="bi bi-car-front"></i>
+                </div>
+
+                <div>
+
+                    <h5 class="mb-1 fw-semibold">
+                        {{ object.cita.vehiculo }}
+                    </h5>
+
+                    <p class="mb-1 text-muted small">
+                        <strong>Cliente:</strong>
+                        {{ object.cita.cliente.get_full_name|default:object.cita.cliente.username }}
+                    </p>
+
+                    <p class="mb-1 text-muted small">
+                        <strong>Servicio:</strong>
+                        {{ object.cita.servicio }}
+                    </p>
+
+                    <p class="mb-0"
+                       style="
+                           color: #9A948A;
+                           font-family: var(--font-mono);
+                           font-size: 0.82rem;
+                       ">
+                        <strong>Fecha:</strong>
+                        {{ object.cita.fecha_hora|date:"d/m/Y H:i" }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="dp-card p-4">
+
+            <div class="mb-4">
+
+                <div class="dp-section-label">
+                    Actualización
+                </div>
+
+                <h5 class="mb-0 fw-semibold">
+                    Registra el progreso del servicio
+                </h5>
+
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% include "partials/_form_card.html" with cancel_url="seguimiento:lista" %}
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

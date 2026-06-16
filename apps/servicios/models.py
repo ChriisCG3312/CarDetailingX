@@ -37,37 +37,57 @@ class Servicio(models.Model):
     def __str__(self):
         return f'{self.nombre} (${self.precio})'
 
+class Paquete(models.Model):
+    """Un paquete o combo que agrupa varios servicios individuales."""
+    nombre = models.CharField(max_length=100, verbose_name='Nombre del Paquete') # Ej: Paquete 1, Paquete 2
+    descripcion = models.TextField(blank=True, verbose_name='Descripción de lo que incluye')
+    
+    # Relación Muchos a Muchos: Un paquete tiene muchos servicios individuales
+    servicios = models.ManyToManyField(Servicio, verbose_name='Servicios Incluidos')
+    
+    es_personalizado = models.BooleanField(default=False, verbose_name='¿Es personalizado por el cliente?')
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Paquete'
+        verbose_name_plural = 'Paquetes'
+
+    def __str__(self):
+        return self.nombre
+
     @property
-    def precio_con_promocion(self):
-        """Retorna el precio después de aplicar la promoción vigente, si existe."""
+    def precio_base(self):
+        """Suma el precio normal de todos los servicios que integran el paquete."""
+        return sum(servicio.precio for servicio in self.servicios.all())
+
+    @property
+    def precio_final(self):
+        """Calcula el precio aplicando la promoción activa del paquete si existe."""
         promo = self.promociones.filter(
             activa=True,
             fecha_inicio__lte=timezone.now().date(),
             fecha_fin__gte=timezone.now().date(),
         ).first()
         if promo:
-            descuento = self.precio * (promo.descuento_pct / 100)
-            return round(self.precio - descuento, 2)
-        return self.precio
+            descuento = self.precio_base * (promo.descuento_pct / 100)
+            return round(self.precio_base - descuento, 2)
+        return self.precio_base
 
 
 class Promocion(models.Model):
-    """Descuento temporal sobre un servicio específico."""
-
-    servicio = models.ForeignKey(
-        Servicio,
+    """Descuento temporal aplicado obligatoriamente a un paquete completo."""
+    nombre = models.CharField(max_length=100, verbose_name='Nombre de la promoción')
+    
+    # CAMBIO CLAVE: Ahora ForeignKey apunta a Paquete, ya no a Servicio
+    paquete = models.ForeignKey(
+        Paquete,
         on_delete=models.PROTECT,
         related_name='promociones',
-        verbose_name='Servicio',
+        verbose_name='Paquete Asociado',
     )
-    descripcion = models.CharField(
-        max_length=200, blank=True, verbose_name='Descripción de la promo'
-    )
-    descuento_pct = models.DecimalField(
-        max_digits=5, decimal_places=2,
-        verbose_name='Descuento (%)',
-        help_text='Porcentaje de descuento (ej: 15 para 15%)'
-    )
+    descripcion = models.CharField(max_length=200, blank=True, verbose_name='Descripción de la promo')
+    descuento_pct = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Descuento (%)')
     fecha_inicio = models.DateField(verbose_name='Fecha de inicio')
     fecha_fin = models.DateField(verbose_name='Fecha de fin')
     activa = models.BooleanField(default=True, verbose_name='Activa')
@@ -78,9 +98,4 @@ class Promocion(models.Model):
         ordering = ['-fecha_inicio']
 
     def __str__(self):
-        return f'{self.servicio.nombre} - {self.descuento_pct}% ({self.fecha_inicio} → {self.fecha_fin})'
-
-    @property
-    def esta_vigente(self):
-        hoy = timezone.now().date()
-        return self.activa and self.fecha_inicio <= hoy <= self.fecha_fin
+        return f'{self.nombre} ({self.descuento_pct}% OFF)'

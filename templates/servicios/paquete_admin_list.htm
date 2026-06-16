@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block titulo %}Gestión de paquetes{% endblock %}
+
+{% block contenido %}
+<div class="div container mt-5">
+    <!-- Cabecera idéntica a la de servicios -->
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+        <div>
+            <p class="dp-eyebrow">Administración</p>
+            <h1 class="dp-title">Gestión de paquetes</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'servicios:admin_lista' %}" class="btn-pill-ghost" style="text-decoration: none;">
+                <i class="bi bi-arrow-left me-1"></i>Regresar a servicios
+            </a>
+            <a href="{% url 'servicios:paquete_crear' %}" class="btn-pill-primary" style="text-decoration: none;">
+                <i class="bi bi-plus-circle me-1"></i>Nuevo paquete
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabla de Paquetes -->
+    <div class="card shadow-sm bg-dark text-white border-secondary">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead class="table-secondary text-dark">
+                        <tr>
+                            <th>Nombre del Paquete</th>
+                            <th>Servicios Incluidos</th>
+                            <th>Precio Base</th>
+                            <th>Precio Final</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paquete in paquetes %}
+                        <tr>
+                            <td>
+                                <strong style="font-family: var(--font-display); font-weight: 800; color: var(--dp-carbon);">
+                                    {{ paquete.nombre }}
+                                </strong>
+                                <small class="d-block text-muted text-truncate" style="max-width: 250px; color: #9A948A;">
+                                    {{ paquete.descripcion }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for servicio in paquete.servicios.all %}
+                                        <span class="badge bg-secondary small text-light" style="font-size: 0.75rem;">
+                                            {{ servicio.nombre }}
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-muted small">Sin servicios asignados</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td style="font-family: var(--font-mono); color: #9A948A;">
+                                ${{ paquete.precio_base }} MXN
+                            </td>
+                            <td style="font-family: var(--font-mono); color: var(--dp-ceramico); font-weight: 700;">
+                                ${{ paquete.precio_final }} MXN
+                            </td>
+                            <td>
+                                {% if paquete.activo %}
+                                    <span class="badge-estado-activo">Activo</span>
+                                {% else %}
+                                    <span class="badge-estado-inactivo">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'servicios:paquete_editar' paquete.pk %}" class="adm-action me-1" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="{% url 'servicios:paquete_eliminar' paquete.pk %}" class="adm-action adm-action-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5" style="color: #9A948A;">
+                                <i class="bi bi-box-seam d-block fs-2 mb-2"></i>
+                                No hay paquetes predefinidos registrados todavía. ¡Crea el primero!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

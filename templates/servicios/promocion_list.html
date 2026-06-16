@@ -1,66 +1,77 @@
 {% extends "base.html" %}
+{% block titulo %}Promociones{% endblock %}
 
 {% block contenido %}
-<div class="container-fluid px-4 mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-dark"><i class="bi bi-tag-fill text-danger"></i> Promociones y Descuentos</h2>
-        <a href="{% url 'servicios:crear_promo' %}" class="btn btn-danger">
-            <i class="bi bi-plus-circle"></i> Nueva Promoción
+<div class="container-fluid px-4 py-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="dp-eyebrow">Administración</div>
+            <h1 class="dp-title mb-0">Promociones y descuentos</h1>
+        </div>
+        <a href="{% url 'servicios:crear_promo' %}" class="btn-pill-primary text-decoration-none">
+            <i class="bi bi-plus-circle me-2"></i>Nueva promoción
         </a>
     </div>
 
-    <!-- Tabla de Promociones -->
-    <div class="card shadow-sm bg-dark text-white border-secondary">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-dark align-middle mb-0">
-                    <thead class="table-secondary text-dark">
-                        <tr>
-                            <th>Nombre de la Promo</th>
-                            <th>Servicio Asociado</th>
-                            <th>Descuento (%)</th>
-                            <th>Vigencia Inicio</th>
-                            <th>Vigencia Fin</th>
-                            <th>Estado</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for promo in promociones %}
-                        <tr>
-                            <td><strong class="text-warning">{{ promo.nombre }}</strong></td>
-                            <td><span class="text-info">{{ promo.servicio.nombre }}</span></td>
-                            <td><span class="badge bg-danger fs-6">{{ promo.porcentaje_descuento }}% OFF</span></td>
-                            <td>{{ promo.fecha_inicio|date:"d/m/Y" }}</td>
-                            <td>{{ promo.fecha_fin|date:"d/m/Y" }}</td>
-                            <td>
-                                {% if promo.activa %}
-                                    <span class="badge bg-success">Activa</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Expirada</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'servicios:editar_promo' promo.pk %}" class="btn btn-sm btn-outline-info me-1">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a href="{% url 'servicios:eliminar_promo' promo.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <i class="bi bi-tags d-block fs-2 mb-2 text-secondary"></i>
-                                No hay promociones creadas todavía.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <!-- Tabla de Promociones con Look de Cueto y Lógica de Paquetes -->
+    <div class="dp-card p-0 overflow-hidden shadow">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead class="table-secondary text-dark">
+                    <tr>
+                        <th>Nombre de la Promo</th>
+                        <th>Paquete Asociado</th>
+                        <th>Descuento (%)</th>
+                        <th>Vigencia Inicio</th>
+                        <th>Vigencia Fin</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for promo in promociones %}
+                    <tr>
+                        <td><strong class="text-white fw-bold">{{ promo.nombre }}</strong></td>
+                        <td>
+                            <!-- Cambiado a paquete por el refactor -->
+                            <span class="text-info">{{ promo.paquete.nombre|default:"Sin paquete asignado" }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-danger" style="font-family: var(--font-mono); font-weight: 700;">
+                                {{ promo.descuento_pct|floatformat:0 }}% OFF
+                            </span>
+                        </td>
+                        <td style="font-family: var(--font-mono);">{{ promo.fecha_inicio|date:"d/m/Y" }}</td>
+                        <td style="font-family: var(--font-mono);">{{ promo.fecha_fin|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if promo.activa %}
+                                <span class="badge bg-success">Activa</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Expirada</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'servicios:editar_promo' promo.pk %}" class="btn btn-sm btn-outline-info me-1" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="{% url 'servicios:eliminar_promo' promo.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-tags-fill d-block fs-2 mb-2 text-secondary"></i>
+                            No hay promociones creadas todavía.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+
 </div>
 {% endblock %}

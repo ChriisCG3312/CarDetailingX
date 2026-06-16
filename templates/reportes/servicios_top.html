@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Servicios más solicitados
+{% endblock %}
+
+{% block contenido %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1>
+            <i class="bi bi-stars"></i>
+            Servicios más solicitados
+        </h1>
+
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'reportes:dashboard' %}"
+               class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Regresar
+            </a>
+
+            <a href="{% url 'reportes:servicios_top_pdf' %}?{{ request.GET.urlencode }}"
+               class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i>
+                PDF
+            </a>
+
+            <a href="{% url 'reportes:servicios_top_excel' %}?{{ request.GET.urlencode }}"
+               class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i>
+                Excel
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Filtro -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row g-3">
+
+                    <div class="col-md-5">
+
+                        <label class="form-label">
+                            Fecha inicio
+                        </label>
+
+                        <input
+                            type="date"
+                            name="fecha_inicio"
+                            value="{{ fecha_inicio }}"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-md-5">
+
+                        <label class="form-label">
+                            Fecha fin
+                        </label>
+
+                        <input
+                            type="date"
+                            name="fecha_fin"
+                            value="{{ fecha_fin }}"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button class="btn btn-primary w-100">
+
+                            <i class="bi bi-search"></i>
+                            Filtrar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {% if sin_datos %}
+
+        <div class="alert alert-warning">
+
+            No existen servicios registrados en el periodo seleccionado.
+
+        </div>
+
+    {% else %}
+
+        <div class="card shadow-sm">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped mb-0">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>#</th>
+                            <th>Servicio</th>
+                            <th>Cantidad de citas</th>
+                            <th>Ingresos generados</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for servicio in servicios %}
+
+                        <tr>
+
+                            <td>
+
+                                {{ forloop.counter }}
+
+                            </td>
+
+                            <td>
+
+                                {{ servicio.nombre }}
+
+                            </td>
+
+                            <td>
+
+                                {{ servicio.total_citas }}
+
+                            </td>
+
+                            <td>
+
+                                ${{ servicio.ingresos }}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

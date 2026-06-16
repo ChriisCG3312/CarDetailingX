@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block titulo %}Seguimientos{% endblock %}
+
+{% block contenido %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+    <div>
+        <div class="dp-eyebrow">Seguimiento</div>
+
+        <h1 class="dp-title">
+            Seguimientos activos
+        </h1>
+    </div>
+
+    {% if user.es_admin %}
+    <a href="{% url 'seguimiento:crear' %}"
+       class="btn-pill-primary">
+
+        <i class="bi bi-plus-lg me-2"></i>
+        Asignar técnico
+
+    </a>
+    {% endif %}
+
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+
+    {% if ver_entregados %}
+
+    <a href="{% url 'seguimiento:lista' %}"
+       class="btn-pill-ghost">
+
+        <i class="bi bi-eye-slash me-2"></i>
+        Ocultar entregados
+
+    </a>
+
+    {% else %}
+
+    <a href="{% url 'seguimiento:lista' %}?ver_entregados=1"
+       class="btn-pill-ghost">
+
+        <i class="bi bi-eye me-2"></i>
+        Ver también entregados
+
+    </a>
+
+    {% endif %}
+
+</div>
+
+{% if seguimientos %}
+
+<div class="dp-card overflow-hidden">
+
+    <div class="table-responsive">
+
+        <table class="table adm-table align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Vehículo</th>
+                    <th>Servicio</th>
+                    <th>Estado</th>
+                    <th>Técnico</th>
+                    <th>Última actualización</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for s in seguimientos %}
+
+                <tr {% if s.estado == 'entregado' %}class="is-inactive"{% endif %}>
+
+                    <td>
+                        {{ s.cita.cliente.get_full_name|default:s.cita.cliente.username }}
+                    </td>
+
+                    <td>
+                        {{ s.cita.vehiculo }}
+                    </td>
+
+                    <td>
+                        {{ s.cita.servicio }}
+                    </td>
+
+                    <td>
+
+                        {% if s.estado == 'recibido' %}
+                            <span class="badge-cita badge-pendiente">
+                                {{ s.get_estado_display }}
+                            </span>
+
+                        {% elif s.estado == 'en_lavado' or s.estado == 'en_pulido' or s.estado == 'en_detalles' %}
+                            <span class="badge-cita badge-en_proceso">
+                                {{ s.get_estado_display }}
+                            </span>
+
+                        {% elif s.estado == 'listo' %}
+                            <span class="badge-cita badge-confirmada">
+                                {{ s.get_estado_display }}
+                            </span>
+
+                        {% elif s.estado == 'entregado' %}
+                            <span class="badge-cita badge-terminada">
+                                {{ s.get_estado_display }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ s.tecnico.get_full_name|default:s.tecnico.username }}
+                    </td>
+
+                    <td>
+                        <span style="
+                            font-family: var(--font-mono);
+                            font-size: 0.85rem;
+                        ">
+                            {{ s.actualizado_en|date:"d/m/Y H:i" }}
+                        </span>
+                    </td>
+
+                    <td class="text-center">
+
+                        {% if user.es_admin or s.tecnico == user %}
+
+                        <a href="{% url 'seguimiento:actualizar' s.pk %}"
+                           class="adm-action"
+                           title="Actualizar seguimiento">
+
+                            <i class="bi bi-pencil"></i>
+
+                        </a>
+
+                        {% endif %}
+
+                        <a href="{% url 'seguimiento:detalle_cliente' s.pk %}"
+                           class="adm-action-success"
+                           title="Ver detalle">
+
+                            <i class="bi bi-eye"></i>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% if is_paginated %}
+
+<nav class="mt-4">
+
+    <ul class="pagination pagination-sm mb-0">
+
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?page={{ page_obj.previous_page_number }}{% if ver_entregados %}&ver_entregados=1{% endif %}">
+
+                Anterior
+
+            </a>
+
+        </li>
+        {% endif %}
+
+        <li class="page-item active">
+            <span class="page-link">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?page={{ page_obj.next_page_number }}{% if ver_entregados %}&ver_entregados=1{% endif %}">
+
+                Siguiente
+
+            </a>
+
+        </li>
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+{% endif %}
+
+{% else %}
+
+<div class="dp-card p-5 text-center">
+
+    <div class="mb-3">
+        <i class="bi bi-clipboard2-check"
+           style="
+               font-size: 2rem;
+               color: var(--dp-cromo);
+           ">
+        </i>
+    </div>
+
+    <h5 class="mb-2">
+        No hay seguimientos activos
+    </h5>
+
+    <p class="text-muted mb-0">
+        No existen seguimientos registrados por el momento.
+    </p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

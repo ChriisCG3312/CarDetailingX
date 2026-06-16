@@ -5,21 +5,17 @@ Responsable: D3
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView, View
+from datetime import date as date_type
 
 from .models import Cita, Vehiculo, Pago
 from .forms import CitaForm, VehiculoForm, PagoForm
 from apps.usuarios.mixins import AdminRequiredMixin, ClienteRequiredMixin
 
-from django.http import JsonResponse
-from datetime import date
-
-from django.http import JsonResponse
-from datetime import date as date_type
-from django.utils import timezone
 
 # ── Vehículos ─────────────────────────────────────────────────────────────────
 
@@ -81,7 +77,6 @@ class CitaListView(LoginRequiredMixin, ListView):
         if not self.request.user.es_admin:
             qs = qs.filter(cliente=self.request.user)
 
-        # RF-04: filtro por estado desde ?estado=
         estado = self.request.GET.get('estado')
         if estado in Cita.Estado.values:
             qs = qs.filter(estado=estado)
@@ -102,14 +97,11 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('citas:lista')
 
     def dispatch(self, request, *args, **kwargs):
-        # RF-03: sin vehículos → redirigir con mensaje informativo
-        if (
-            request.user.is_authenticated
-            and not request.user.es_admin
-            and not Vehiculo.objects.filter(cliente=request.user).exists()
-        ):
-            messages.info(request, 'Primero registra un vehículo para poder agendar una cita.')
-            return redirect('citas:crear_vehiculo')
+        if request.user.is_authenticated and not request.user.es_admin:
+            # sin vehículos → redirigir a registro
+            if not Vehiculo.objects.filter(cliente=request.user).exists():
+                messages.info(request, 'Primero registra un vehículo para poder agendar una cita.')
+                return redirect('citas:crear_vehiculo')
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -125,18 +117,7 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['titulo'] = 'Agendar cita'
-        return ctx
-    
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['titulo'] = 'Agendar cita'
         ctx['hoy'] = timezone.localdate()
-        return ctx
-    
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['titulo'] = 'Agendar cita'
-        ctx['hoy'] = timezone.localdate()  # <-- agrega esta línea
         return ctx
 
 
@@ -175,7 +156,7 @@ class CitaConfirmarView(AdminRequiredMixin, UpdateView):
         cita.estado = Cita.Estado.CONFIRMADA
         cita.save()
         messages.success(self.request, f'Cita #{cita.pk} confirmada.')
-        return redirect(self.success_url)
+        return redirect('seguimiento:crear')
 
 
 class CitaCancelarView(LoginRequiredMixin, UpdateView):
@@ -186,7 +167,6 @@ class CitaCancelarView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('citas:lista')
 
     def get_queryset(self):
-        # RF-06: cliente solo puede cancelar sus propias citas
         if self.request.user.es_admin:
             return Cita.objects.all()
         return Cita.objects.filter(cliente=self.request.user)
@@ -194,7 +174,6 @@ class CitaCancelarView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         cita = form.instance
 
-        # RF-06: mensajes de error específicos por estado
         if cita.estado == Cita.Estado.EN_PROCESO:
             messages.error(self.request, 'No puedes cancelar una cita que ya está en proceso.')
             return redirect(self.success_url)
@@ -220,9 +199,18 @@ class PagoCreateView(AdminRequiredMixin, CreateView):
     template_name = 'citas/pago_form.html'
     success_url = reverse_lazy('citas:lista')
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        siguiente = Pago.objects.count() + 1
+        ctx['folio_preview'] = f'FOLIO-{siguiente:04d}'
+        return ctx
+
     def form_valid(self, form):
-        messages.success(self.request, 'Pago registrado.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.object.referencia = f'FOLIO-{self.object.pk:04d}'
+        self.object.save()
+        messages.success(self.request, f'Pago registrado. Folio: {self.object.referencia}')
+        return response
 
 
 # ── Agenda del día ────────────────────────────────────────────────────────────
@@ -242,16 +230,17 @@ class AgendaHoyView(AdminRequiredMixin, TemplateView):
             .order_by('fecha_hora')
         )
         ctx['hoy'] = hoy
-        return ctx 
+        return ctx
 
-# API: horarios disponibles por día    
+
+# ── API: horarios disponibles por día ─────────────────────────────────────────
+
 class HorariosDisponiblesView(LoginRequiredMixin, View):
     """
     GET /citas/api/horarios/?fecha=2026-06-15
     Devuelve los slots del día con su disponibilidad.
     """
     http_method_names = ['get']
-
     SLOTS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 
     def get(self, request):
@@ -293,3 +282,50 @@ class HorariosDisponiblesView(LoginRequiredMixin, View):
             })
 
         return JsonResponse({'slots': slots, 'fecha': fecha_str})
+
+
+# ── API: precio de cita con descuento ─────────────────────────────────────────
+
+class PrecioCitaView(LoginRequiredMixin, View):
+    """
+    GET /citas/api/precio/?cita_id=1
+    Devuelve el precio del servicio con descuento si aplica.
+    """
+    http_method_names = ['get']
+
+    def get(self, request):
+        cita_id = request.GET.get('cita_id')
+        if not cita_id:
+            return JsonResponse({'error': 'Falta cita_id'}, status=400)
+
+        try:
+            cita = Cita.objects.select_related('servicio').get(pk=cita_id)
+        except Cita.DoesNotExist:
+            return JsonResponse({'error': 'Cita no encontrada'}, status=404)
+
+        servicio = cita.servicio
+        precio_original = float(servicio.precio)
+        precio_final = precio_original
+        descuento_pct = 0
+        promo_nombre = None
+
+        from apps.servicios.models import Promocion
+        hoy = timezone.localdate()
+        promo = Promocion.objects.filter(
+            servicio=servicio,
+            activa=True,
+            fecha_inicio__lte=hoy,
+            fecha_fin__gte=hoy,
+        ).first()
+
+        if promo:
+            descuento_pct = float(promo.descuento_pct)
+            precio_final = round(precio_original * (1 - descuento_pct / 100), 2)
+            promo_nombre = promo.descripcion
+
+        return JsonResponse({
+            'precio_original': precio_original,
+            'descuento_pct': descuento_pct,
+            'precio_final': precio_final,
+            'promo': promo_nombre,
+        })

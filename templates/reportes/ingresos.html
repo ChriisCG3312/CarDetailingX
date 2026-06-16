@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+Reporte de ingresos
+{% endblock %}
+
+{% block contenido %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1>
+            <i class="bi bi-cash-stack"></i>
+            Reporte de ingresos
+        </h1>
+
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'reportes:dashboard' %}"
+               class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Regresar
+            </a>
+
+            <a href="{% url 'reportes:ingresos_pdf' %}?{{ request.GET.urlencode }}"
+               class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i>
+                PDF
+            </a>
+
+            <a href="{% url 'reportes:ingresos_excel' %}?{{ request.GET.urlencode }}"
+               class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i>
+                Excel
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Fecha inicio
+                        </label>
+
+                        <input
+                            type="date"
+                            name="fecha_inicio"
+                            value="{{ fecha_inicio }}"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Fecha fin
+                        </label>
+
+                        <input
+                            type="date"
+                            name="fecha_fin"
+                            value="{{ fecha_fin }}"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Método de pago
+                        </label>
+
+                        <select
+                            name="metodo"
+                            class="form-select">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            <option value="efectivo"
+                                {% if metodo == "efectivo" %}
+                                selected
+                                {% endif %}>
+                                Efectivo
+                            </option>
+
+                            <option value="tarjeta"
+                                {% if metodo == "tarjeta" %}
+                                selected
+                                {% endif %}>
+                                Tarjeta
+                            </option>
+
+                            <option value="transferencia"
+                                {% if metodo == "transferencia" %}
+                                selected
+                                {% endif %}>
+                                Transferencia
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button class="btn btn-primary w-100">
+
+                            <i class="bi bi-search"></i>
+                            Filtrar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Tarjeta de total de ingresos -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5>
+                Ingresos totales
+            </h5>
+
+            <h2 class="text-success">
+
+                ${{ total_ingresos }}
+
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    {% if sin_datos %}
+
+        <div class="alert alert-warning">
+
+            No existen pagos registrados en el periodo seleccionado.
+
+        </div>
+
+    {% else %}
+
+        <div class="card shadow-sm">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped mb-0">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Método</th>
+                            <th>Monto</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for pago in pagos %}
+
+                        <tr>
+
+                            <td>
+
+                                {{ pago.pagado_en|date:"d/m/Y H:i" }}
+
+                            </td>
+
+                            <td>
+
+                                {{ pago.cita.cliente }}
+
+                            </td>
+
+                            <td>
+
+                                {{ pago.cita.servicio }}
+
+                            </td>
+
+                            <td>
+
+                                {{ pago.get_metodo_display }}
+
+                            </td>
+
+                            <td>
+
+                                ${{ pago.monto }}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

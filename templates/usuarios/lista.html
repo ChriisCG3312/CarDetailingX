@@ -1,17 +1,212 @@
 {% extends "base.html" %}
 {% block titulo %}Usuarios{% endblock %}
 
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dash-asfalto: #14171C;
+    --dash-papel: #F7F5F1;
+    --dash-papel-2: #EFEAE2;
+    --dash-carbon: #1F2329;
+    --dash-ambar: #E8A23D;
+    --dash-ambar-2: #F4C277;
+    --dash-ceramico: #2F6F5E;
+  }
+
+  .adm-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dash-ceramico);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .adm-title {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    color: var(--dash-carbon);
+    margin: 0;
+  }
+
+  .btn-pill-primary {
+    background: var(--dash-ambar);
+    color: var(--dash-asfalto);
+    font-weight: 700;
+    border-radius: 999px;
+    border: none;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .btn-pill-primary:hover {
+    background: var(--dash-ambar-2);
+    color: var(--dash-asfalto);
+    transform: translateY(-1px);
+  }
+
+  .adm-select {
+    border-radius: 10px;
+    border-color: #E4DFD6;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.9rem;
+  }
+
+  .adm-select:focus {
+    border-color: var(--dash-ambar);
+    box-shadow: 0 0 0 3px rgba(232, 162, 61, 0.18);
+    outline: none;
+  }
+
+  .adm-card {
+    background: #fff;
+    border: 1px solid #ECE8E0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px -6px rgba(31, 35, 41, 0.10);
+  }
+
+  .adm-table {
+    margin: 0;
+  }
+
+  .adm-table thead th {
+    background: var(--dash-asfalto);
+    color: var(--dash-papel);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border: none;
+    padding: 0.85rem 1rem;
+  }
+
+  .adm-table tbody td {
+    padding: 0.85rem 1rem;
+    font-size: 0.92rem;
+    vertical-align: middle;
+    border-color: #ECE8E0;
+  }
+
+  .adm-table tbody tr:hover {
+    background: var(--dash-papel-2);
+  }
+
+  .adm-table tbody tr.is-inactive {
+    opacity: 0.55;
+  }
+
+  /* Badges de rol */
+  .badge-rol {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  .badge-rol-admin   { background: var(--dash-asfalto); color: var(--dash-ambar); }
+  .badge-rol-cliente { background: var(--dash-ceramico); color: #fff; }
+  .badge-rol-tecnico { background: var(--dash-ambar); color: var(--dash-asfalto); }
+
+  /* Badges de estado */
+  .badge-estado {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  .badge-estado-activo   { background: #E3F0EA; color: var(--dash-ceramico); }
+  .badge-estado-inactivo { background: #F6E7E2; color: #B5563E; }
+
+  /* Botones de acción */
+  .adm-action {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #E4DFD6;
+    color: var(--dash-carbon);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .adm-action:hover {
+    background: var(--dash-carbon);
+    color: #fff;
+    border-color: var(--dash-carbon);
+  }
+
+  .adm-action-danger:hover {
+    background: #B5563E;
+    border-color: #B5563E;
+    color: #fff;
+  }
+
+  .adm-action-success:hover {
+    background: var(--dash-ceramico);
+    border-color: var(--dash-ceramico);
+    color: #fff;
+  }
+
+  /* Paginación */
+  .adm-pagination .page-link {
+    border: none;
+    border-radius: 999px !important;
+    margin: 0 0.15rem;
+    color: var(--dash-carbon);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+  }
+
+  .adm-pagination .page-link:hover {
+    background: var(--dash-papel-2);
+  }
+
+  .adm-pagination .page-item.disabled .page-link {
+    background: transparent;
+    color: #9A948A;
+    border: none;
+  }
+</style>
+{% endblock %}
+
 {% block contenido %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="h4">Usuarios del sistema</h2>
-  <a href="{% url 'usuarios:crear' %}" class="btn btn-dark">
+
+<!-- ── Encabezado ──────────────────────────────────────────────────────── -->
+<div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+  <div>
+    <p class="adm-eyebrow">Administración</p>
+    <h1 class="adm-title">Usuarios del sistema</h1>
+  </div>
+  <a href="{% url 'usuarios:crear' %}" class="btn-pill-primary">
     <i class="bi bi-person-plus me-1"></i>Nuevo usuario
   </a>
 </div>
 
-<!-- Filtro por rol -->
+<!-- ── Filtro por rol ──────────────────────────────────────────────────── -->
 <form method="get" class="mb-3 d-flex gap-2">
-  <select name="rol" class="form-select w-auto" onchange="this.form.submit()">
+  <select name="rol" class="form-select adm-select w-auto" onchange="this.form.submit()">
     <option value="">Todos los roles</option>
     {% for valor, etiqueta in roles %}
     <option value="{{ valor }}" {% if rol_activo == valor %}selected{% endif %}>
@@ -21,9 +216,10 @@
   </select>
 </form>
 
-<div class="card shadow-sm">
+<!-- ── Tabla ───────────────────────────────────────────────────────────── -->
+<div class="adm-card">
   <div class="table-responsive">
-    <table class="table table-hover mb-0">
+    <table class="table table-hover adm-table">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -36,37 +232,40 @@
       </thead>
       <tbody>
         {% for u in usuarios %}
-        <tr {% if not u.is_active %}class="text-muted"{% endif %}>
+        <tr {% if not u.is_active %}class="is-inactive"{% endif %}>
           <td>{{ u.get_full_name|default:"—" }}</td>
           <td>{{ u.username }}</td>
           <td>{{ u.email }}</td>
-          <td><span class="badge bg-secondary">{{ u.get_rol_display }}</span></td>
           <td>
-            {% if u.is_active %}
-            <span class="badge bg-success">Activo</span>
+            {% if u.rol == 'admin' %}
+            <span class="badge-rol badge-rol-admin">{{ u.get_rol_display }}</span>
+            {% elif u.rol == 'tecnico' %}
+            <span class="badge-rol badge-rol-tecnico">{{ u.get_rol_display }}</span>
             {% else %}
-            <span class="badge bg-danger">Inactivo</span>
+            <span class="badge-rol badge-rol-cliente">{{ u.get_rol_display }}</span>
             {% endif %}
           </td>
-            <td class="d-flex gap-1">
-              <a href="{% url 'usuarios:editar' u.pk %}"
-                class="btn btn-sm btn-outline-dark">
-                  <i class="bi bi-pencil"></i>
-              </a>
+          <td>
+            {% if u.is_active %}
+            <span class="badge-estado badge-estado-activo">Activo</span>
+            {% else %}
+            <span class="badge-estado badge-estado-inactivo">Inactivo</span>
+            {% endif %}
+          </td>
+          <td class="d-flex gap-1">
+            <a href="{% url 'usuarios:editar' u.pk %}" class="adm-action" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
 
-              {% if u.is_active %}
-                  <a href="{% url 'usuarios:eliminar' u.pk %}"
-                    class="btn btn-sm btn-outline-danger"
-                    title="Desactivar">
-                      <i class="bi bi-person-dash"></i>
-                  </a>
-              {% else %}
-                  <a href="{% url 'usuarios:reactivar' u.pk %}"
-                    class="btn btn-sm btn-outline-success"
-                    title="Reactivar">
-                      <i class="bi bi-person-check"></i>
-                  </a>
-              {% endif %}
+            {% if u.is_active %}
+            <a href="{% url 'usuarios:eliminar' u.pk %}" class="adm-action adm-action-danger" title="Desactivar">
+              <i class="bi bi-person-dash"></i>
+            </a>
+            {% else %}
+            <a href="{% url 'usuarios:reactivar' u.pk %}" class="adm-action adm-action-success" title="Reactivar">
+              <i class="bi bi-person-check"></i>
+            </a>
+            {% endif %}
           </td>
         </tr>
         {% empty %}
@@ -77,10 +276,10 @@
   </div>
 </div>
 
-<!-- Paginación -->
+<!-- ── Paginación ──────────────────────────────────────────────────────── -->
 {% if is_paginated %}
 <nav class="mt-3">
-  <ul class="pagination">
+  <ul class="pagination adm-pagination">
     {% if page_obj.has_previous %}
     <li class="page-item">
       <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if rol_activo %}&rol={{ rol_activo }}{% endif %}">Anterior</a>
@@ -97,4 +296,5 @@
   </ul>
 </nav>
 {% endif %}
+
 {% endblock %}

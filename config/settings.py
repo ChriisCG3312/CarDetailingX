@@ -30,11 +30,11 @@ LOCAL_APPS = [
     'apps.usuarios',
     'apps.servicios',
     'apps.citas',
-    'apps.seguimiento',
+    'apps.seguimiento.apps.SeguimientoConfig',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
+    
 # Modelo de usuario personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
@@ -64,6 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.seguimiento.context_processors.notificaciones_no_leidas',
             ],
         },
     },

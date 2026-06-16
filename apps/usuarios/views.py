@@ -36,7 +36,7 @@ class LandingView(View):
             activa=True,
             fecha_inicio__lte=timezone.now().date(),
             fecha_fin__gte=timezone.now().date(),
-        ).select_related('servicio').first()
+        ).select_related('paquete').first()
 
         return render(request, self.template_name, {
             'servicios': servicios,
