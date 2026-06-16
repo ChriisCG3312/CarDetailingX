@@ -85,8 +85,8 @@ def notificar_cambio_seguimiento(sender, instance, created, **kwargs):
                 Notificacion.objects.create(
                     usuario=cliente,
                     cita=instance.cita,
-                    tipo=Notificacion.Tipo.SERVICIO_INICIADO,
-                    mensaje=f'Estado actual: {instance.get_estado_display()}.{notas}',
+                    tipo=Notificacion.Tipo.SERVICIO_LISTO,
+                    mensaje=f'Tu servicio ha finalizado. ¡Gracias por tu preferencia!',
                 )
     except Exception as e:
         import logging

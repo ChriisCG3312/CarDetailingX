@@ -162,19 +162,6 @@
 
         {% if seguimiento.notas_tecnico %}
 
-<<<<<<< HEAD
-    <!-- Botón volver según rol -->
-    <div class="mt-3">
-      {% if user.es_cliente %}
-        <a href="{% url 'citas:lista' %}" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-arrow-left me-1"></i>Volver a mis citas
-        </a>
-      {% else %}
-        <a href="{% url 'seguimiento:lista' %}" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-arrow-left me-1"></i>Volver a seguimientos
-        </a>
-      {% endif %}
-=======
         <div class="dp-card mt-4 p-3" style="background: var(--dp-papel-2); border-color: #E4DFD6;">
 
           <div class="d-flex align-items-start gap-3">
@@ -212,7 +199,6 @@
 
       </div>
 
->>>>>>> 6cd669b (seguimiento visuals)
     </div>
 
   </div>
