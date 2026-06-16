@@ -28,9 +28,16 @@
                 {% endif %}
               </div>
 
+              {# ── Paquete: solo lectura si viene por URL, select si no ── #}
               <div class="col-12">
-                <label for="{{ form.paquete.id_for_label }}" class="form-label">Paquete</label>
-                {{ form.paquete }}
+                <label class="form-label">Paquete</label>
+                {% if paquete_preseleccionado %}
+                  <input type="text" class="form-control bg-light"
+                         value="{{ paquete_preseleccionado }}" readonly tabindex="-1">
+                  <input type="hidden" name="paquete" value="{{ paquete_pk }}">
+                {% else %}
+                  {{ form.paquete }}
+                {% endif %}
                 {% if form.paquete.errors %}
                   <div class="invalid-feedback d-block">{{ form.paquete.errors.0 }}</div>
                 {% endif %}
@@ -129,7 +136,6 @@ async function cargarSlots() {
   const loading = document.getElementById('slots-loading');
   const errorFecha = document.getElementById('error-fecha');
 
-  // reset
   slotsGrid.innerHTML = '';
   placeholder.style.display = 'none';
   errorFecha.style.display = 'none';
@@ -139,7 +145,6 @@ async function cargarSlots() {
 
   if (!fecha) return;
 
-  // bloquear domingo
   const d = new Date(fecha + 'T12:00:00');
   if (d.getDay() === 0) {
     errorFecha.style.display = 'block';
@@ -179,7 +184,6 @@ async function cargarSlots() {
 }
 
 function seleccionarHora(fecha, hora, label, btnEl) {
-  // resaltar seleccionado
   document.querySelectorAll('#slots-grid button').forEach(b => {
     b.classList.remove('btn-success');
     if (!b.disabled) b.classList.add('btn-outline-success');
@@ -187,11 +191,9 @@ function seleccionarHora(fecha, hora, label, btnEl) {
   btnEl.classList.remove('btn-outline-success');
   btnEl.classList.add('btn-success');
 
-  // llenar campo oculto
   const valor = `${fecha} ${String(hora).padStart(2,'0')}:00`;
   document.getElementById('fecha_hora_input').value = valor;
 
-  // resumen
   const d = new Date(fecha + 'T12:00:00');
   const diaIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
   const texto = `${DIAS[diaIdx].charAt(0).toUpperCase() + DIAS[diaIdx].slice(1)} ${d.getDate()} de ${MESES[d.getMonth()]} a las ${label}`;

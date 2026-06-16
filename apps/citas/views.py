@@ -120,10 +120,29 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Cita agendada correctamente.')
         return super().form_valid(form)
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        paquete_pk = self.request.GET.get('paquete')
+        if paquete_pk:
+            try:
+                form.fields['paquete'].initial = int(paquete_pk)
+            except (ValueError, TypeError):
+                pass
+        return form
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['titulo'] = 'Agendar cita'
         ctx['hoy'] = timezone.localdate()
+        paquete_pk = self.request.GET.get('paquete')
+        if paquete_pk:
+            from apps.servicios.models import Paquete
+            try:
+                paquete = Paquete.objects.get(pk=paquete_pk)
+                ctx['paquete_preseleccionado'] = paquete.nombre
+                ctx['paquete_pk'] = paquete.pk
+            except Paquete.DoesNotExist:
+                pass
         return ctx
 
 
