@@ -421,3 +421,11 @@ body.page-landing main.container-fluid {
 .notif-icon-terracota { background: #F6E7E2; color: #B5563E; }
 .notif-icon-ambar     { background: #FBEFDC; color: var(--dp-ambar); }
 .notif-icon-asfalto   { background: var(--dp-papel-2); color: var(--dp-carbon); }
+
+.alert {
+    transition: opacity .3s ease;
+}
+
+.alert.fade {
+    opacity: 0;
+}
