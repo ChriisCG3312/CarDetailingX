@@ -67,13 +67,12 @@ class CitaListView(LoginRequiredMixin, ListView):
     paginate_by = 15
 
     def dispatch(self, request, *args, **kwargs):
-        # RF-04: técnico no accede a esta vista
         if request.user.is_authenticated and request.user.rol == 'tecnico':
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = Cita.objects.select_related('cliente', 'vehiculo', 'servicio')
+        qs = Cita.objects.select_related('cliente', 'vehiculo', 'paquete')
         if not self.request.user.es_admin:
             qs = qs.filter(cliente=self.request.user)
 
@@ -98,7 +97,6 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and not request.user.es_admin:
-            # sin vehículos → redirigir a registro
             if not Vehiculo.objects.filter(cliente=request.user).exists():
                 messages.info(request, 'Primero registra un vehículo para poder agendar una cita.')
                 return redirect('citas:crear_vehiculo')
@@ -156,7 +154,8 @@ class CitaConfirmarView(AdminRequiredMixin, UpdateView):
         cita.estado = Cita.Estado.CONFIRMADA
         cita.save()
         messages.success(self.request, f'Cita #{cita.pk} confirmada.')
-        return redirect('seguimiento:crear')
+        from django.urls import reverse
+        return redirect(reverse('seguimiento:crear') + f'?cita={cita.pk}')
 
 
 class CitaCancelarView(LoginRequiredMixin, UpdateView):
@@ -226,7 +225,7 @@ class AgendaHoyView(AdminRequiredMixin, TemplateView):
             Cita.objects
             .filter(fecha_hora__date=hoy)
             .exclude(estado=Cita.Estado.CANCELADA)
-            .select_related('cliente', 'vehiculo', 'servicio')
+            .select_related('cliente', 'vehiculo', 'paquete')
             .order_by('fecha_hora')
         )
         ctx['hoy'] = hoy
@@ -284,12 +283,12 @@ class HorariosDisponiblesView(LoginRequiredMixin, View):
         return JsonResponse({'slots': slots, 'fecha': fecha_str})
 
 
-# ── API: precio de cita con descuento ─────────────────────────────────────────
+# ── API: precio de paquete con descuento ──────────────────────────────────────
 
 class PrecioCitaView(LoginRequiredMixin, View):
     """
     GET /citas/api/precio/?cita_id=1
-    Devuelve el precio del servicio con descuento si aplica.
+    Devuelve el precio del paquete con descuento si aplica.
     """
     http_method_names = ['get']
 
@@ -299,20 +298,27 @@ class PrecioCitaView(LoginRequiredMixin, View):
             return JsonResponse({'error': 'Falta cita_id'}, status=400)
 
         try:
-            cita = Cita.objects.select_related('servicio').get(pk=cita_id)
+            cita = Cita.objects.select_related('paquete').get(pk=cita_id)
         except Cita.DoesNotExist:
             return JsonResponse({'error': 'Cita no encontrada'}, status=404)
 
-        servicio = cita.servicio
-        precio_original = float(servicio.precio)
+        paquete = cita.paquete
+
+        from apps.servicios.models import Promocion
+        from django.db.models import Sum
+
+        # precio base = suma de precios de los servicios del paquete
+        precio_original = float(
+            paquete.servicios.aggregate(total=Sum('precio'))['total'] or 0
+        )
         precio_final = precio_original
         descuento_pct = 0
         promo_nombre = None
 
-        from apps.servicios.models import Promocion
+        # buscar promoción activa y vigente para el paquete
         hoy = timezone.localdate()
         promo = Promocion.objects.filter(
-            servicio=servicio,
+            paquete=paquete,
             activa=True,
             fecha_inicio__lte=hoy,
             fecha_fin__gte=hoy,

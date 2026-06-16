@@ -33,6 +33,28 @@ class SeguimientoCrearView(AdminRequiredMixin, CreateView):
     template_name = 'seguimiento/seguimiento_form.html'
     success_url = reverse_lazy('seguimiento:lista')
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        cita_pk = self.request.GET.get('cita')
+        if cita_pk:
+            try:
+                form.fields['cita'].initial = int(cita_pk)
+            except (ValueError, TypeError):
+                pass
+        return form
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        cita_pk = self.request.GET.get('cita')
+        if cita_pk:
+            try:
+                cita = Cita.objects.select_related('cliente', 'paquete', 'vehiculo').get(pk=cita_pk)
+                ctx['cita_preseleccionada'] = str(cita)
+                ctx['cita_pk'] = cita.pk
+            except Cita.DoesNotExist:
+                pass
+        return ctx
+
     def form_valid(self, form):
         seguimiento = form.save()
         cita = seguimiento.cita
@@ -56,7 +78,7 @@ class SeguimientoActualizarView(TecnicoRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(
-            Seguimiento.objects.select_related('cita__cliente', 'cita__servicio', 'tecnico'),
+            Seguimiento.objects.select_related('cita__cliente', 'cita__paquete', 'tecnico'),
             pk=self.kwargs['pk'],
         )
         if self.request.user.es_tecnico and obj.tecnico != self.request.user:
@@ -97,7 +119,7 @@ class SeguimientoListaView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = Seguimiento.objects.select_related(
-            'cita__cliente', 'cita__servicio', 'cita__vehiculo', 'tecnico'
+            'cita__cliente', 'cita__paquete', 'cita__vehiculo', 'tecnico'
         )
         if not self.request.GET.get('ver_entregados'):
             qs = qs.exclude(estado=Seguimiento.Estado.ENTREGADO)
@@ -122,7 +144,7 @@ class SeguimientoDetalleClienteView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(
-            Seguimiento.objects.select_related('cita__cliente', 'cita__servicio', 'tecnico'),
+            Seguimiento.objects.select_related('cita__cliente', 'cita__paquete', 'tecnico'),
             pk=self.kwargs['pk'],
         )
         if self.request.user.es_cliente and obj.cita.cliente != self.request.user:

@@ -178,40 +178,66 @@
   </div>
 </section>
 
-<!-- ── Servicios ───────────────────────────────────────────────────────── -->
+<!-- ── Paquetes ───────────────────────────────────────────────────────── -->
 <section id="servicios" class="land-servicios land-section">
   <div class="land-container">
     <div class="land-section-head">
-      <p class="land-eyebrow">Servicios</p>
+      <p class="land-eyebrow">Paquetes</p>
       <h2 class="land-title">Lo que hacemos por tu auto</h2>
     </div>
 
-    {% if servicios %}
+    {% if paquetes %}
     <div class="svc-grid">
-      {% for servicio in servicios %}
-      <div class="svc-card">
-        <div class="svc-icon">
-          <i
-            class="bi {% cycle 'bi-droplet-fill' 'bi-stars' 'bi-shield-check' 'bi-brush' 'bi-gem' 'bi-car-front-fill' %}"></i>
+        {% for paquete in paquetes %}
+        <div class="svc-card">
+            <div class="svc-icon">
+                <i class="bi {% cycle 'bi-box2-heart-fill' 'bi-stars' 'bi-gem' %}"></i>
+            </div>
+            <h3>{{ paquete.nombre }}</h3>
+            <p>
+                {{ paquete.descripcion|truncatewords:14 }}
+            </p>
+            <ul class="svc-includes">
+                {% for servicio in paquete.servicios.all|slice:":3" %}
+                    <li>{{ servicio.nombre }}</li>
+                {% endfor %}
+                {% if paquete.servicios.count > 3 %}
+                    <li>y más...</li>
+                {% endif %}
+            </ul>
+            <div class="svc-meta">
+                <div>
+                    {% if paquete.precio_base != paquete.precio_final %}
+                        <span class="svc-price-old">
+                            ${{ paquete.precio_base }}
+                        </span>
+                        <span class="svc-price">
+                            ${{ paquete.precio_final }}
+                        </span>
+                    {% else %}
+                        <span class="svc-price">
+                            ${{ paquete.precio_base }}
+                        </span>
+                    {% endif %}
+                </div>
+                <span class="svc-duration">
+                    <i class="bi bi-clock me-1"></i>
+                    {{ paquete.duracion_total|default:"0" }} h
+                </span>
+            </div>
+            <a href="{% url 'citas:crear' %}?paquete={{ paquete.id }}"
+              class="btn-land-primary w-100 mt-3">
+                <i class="bi bi-calendar-event me-1"></i>
+                Agendar paquete
+            </a>
         </div>
-        <h3>{{ servicio.nombre }}</h3>
-        <p>{{ servicio.descripcion|truncatewords:18 }}</p>
-        <div class="svc-meta">
-          <div>
-            {% if servicio.precio_con_promocion != servicio.precio %}
-            <span class="svc-price-old">${{ servicio.precio }}</span>
-            {% endif %}
-            <span class="svc-price">${{ servicio.precio_con_promocion }}</span>
-          </div>
-          <span class="svc-duration">{{ servicio.duracion_horas }} h</span>
-        </div>
-      </div>
-      {% endfor %}
+        {% endfor %}
     </div>
     {% else %}
-    <p class="land-empty">Aún no hay servicios publicados. Vuelve pronto.</p>
+    <p class="land-empty">
+        Aún no hay paquetes publicados. Vuelve pronto.
+    </p>
     {% endif %}
-
     <div class="land-more">
       <a href="{% url 'servicios:catalogo' %}" class="btn-land-ghost"
         style="color: var(--land-carbon); border-color: #D8D2C8;">
@@ -284,10 +310,10 @@
           class="gallery-image"><span class="gallery-caption">Encerado premium — Pickup</span></div>
       <div class="gallery-card g5"><img src="{% static 'img/galeria/motor.jpeg' %}" alt="Lavado interior profundo"
           class="gallery-image"><span class="gallery-caption">Detallado de motor</span></div>
-          <div class="gallery-card g4"><img src="{% static 'img/galeria/limpieza.jpeg' %}" alt="Lavado interior profundo"
-              class="gallery-image"><span class="gallery-caption">Pulido cerámico — SUV</span></div>
+          <div class="gallery-card g4"><img src="{% static 'img/galeria/faros.jpeg' %}" alt="Lavado interior profundo"
+              class="gallery-image"><span class="gallery-caption">Restauración de faros</span></div>
       <div class="gallery-card g3"><img src="{% static 'img/galeria/pulido.jpeg' %}" alt="Lavado interior profundo"
-          class="gallery-image"><span class="gallery-caption">Restauración de faros</span></div>
+          class="gallery-image"><span class="gallery-caption">Pulido cerámico — SUV</span></div>
       <div class="gallery-card g6"><img src="{% static 'img/galeria/asientos.jpeg' %}" alt="Lavado interior profundo"
           class="gallery-image"><span class="gallery-caption">Protección de asientos</span></div>
     </div>

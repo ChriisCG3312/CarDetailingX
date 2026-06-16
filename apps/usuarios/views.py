@@ -28,10 +28,17 @@ class LandingView(View):
     def get(self, request):
         if request.user.is_authenticated:
             return redirect('dashboard:home')
+        from apps.servicios.models import Paquete, Promocion
 
-        from apps.servicios.models import Servicio, Promocion
+        paquetes = (
+            Paquete.objects
+            .filter(
+                activo=True,
+                es_personalizado=False,
+            )
+            .prefetch_related('servicios')[:3]
+        )
 
-        servicios = Servicio.objects.filter(activo=True)[:6]
         promo = Promocion.objects.filter(
             activa=True,
             fecha_inicio__lte=timezone.now().date(),
@@ -39,10 +46,9 @@ class LandingView(View):
         ).select_related('paquete').first()
 
         return render(request, self.template_name, {
-            'servicios': servicios,
+            'paquetes': paquetes,
             'promo': promo,
         })
-
 # ── Autenticación ──────────────────────────────────────────────────────────────
 
 class LoginView(View):
@@ -102,8 +108,7 @@ class LogoutView(LoginRequiredMixin, View):
     """Vista de cierre de sesión."""
     def post(self, request):
         logout(request)
-        messages.info(request, 'Sesión cerrada correctamente.')
-        return redirect('usuarios:login')
+        return redirect('landing')
 
 class RegistroView(CreateView):
     form_class = RegistroUsuarioForm

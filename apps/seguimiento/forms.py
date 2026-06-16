@@ -25,7 +25,7 @@ class SeguimientoCrearForm(forms.ModelForm):
             estado=Cita.Estado.CONFIRMADA
         ).exclude(
             seguimiento__isnull=False
-        ).select_related('cliente', 'servicio', 'vehiculo')
+        ).select_related('cliente', 'paquete', 'vehiculo')
 
         # Solo técnicos activos
         self.fields['tecnico'].queryset = Usuario.objects.filter(

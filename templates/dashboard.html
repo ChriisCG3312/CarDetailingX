@@ -34,7 +34,14 @@
       <span class="dash-card-link">Ver todos →</span>
     </div>
   </a>
-
+  <a href="{% url 'servicios:paquete_admin_list' %}" class="dash-card">
+  <div class="dash-card-icon dci-ambar"><i class="bi bi-box-seam"></i></div>
+  <div class="dash-card-body">
+    <div class="dash-card-label">Paquetes</div>
+    <div class="dash-card-sub">Combos de servicios</div>
+    <span class="dash-card-link">Gestionar →</span>
+  </div>
+</a>
   <a href="{% url 'servicios:admin_lista' %}" class="dash-card">
     <div class="dash-card-icon dci-ambar"><i class="bi bi-stars"></i></div>
     <div class="dash-card-body">
@@ -79,7 +86,7 @@
 <p class="dash-section-label">Accesos rápidos</p>
 <div class="dash-grid">
 
-  <a href="{% url 'citas:crear' %}" class="dash-card dash-card-featured">
+  <a href="{% url 'servicios:catalogo' %}" class="dash-card dash-card-featured">
     <div class="dash-card-icon"><i class="bi bi-calendar-plus"></i></div>
     <div class="dash-card-body">
       <div class="dash-card-label">Agendar cita</div>
