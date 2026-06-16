@@ -11,7 +11,7 @@ class VehiculoAdmin(admin.ModelAdmin):
 
 @admin.register(Cita)
 class CitaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'vehiculo', 'servicio', 'fecha_hora', 'estado')
+    list_display = ('id', 'cliente', 'vehiculo', 'paquete', 'fecha_hora', 'estado')
     list_filter = ('estado',)
     search_fields = ('cliente__last_name', 'vehiculo__placas')
     date_hierarchy = 'fecha_hora'

@@ -4,12 +4,12 @@ Responsable: D3
 
 Modelos:
 - Vehiculo: vehículo registrado por un cliente.
-- Cita: cita agendada que vincula cliente, vehículo y servicio.
+- Cita: cita agendada que vincula cliente, vehículo y paquete.
 - Pago: registro del pago asociado a una cita.
 """
 from django.db import models
 from django.conf import settings
-from apps.servicios.models import Servicio
+from apps.servicios.models import Paquete
 
 
 class Vehiculo(models.Model):
@@ -63,11 +63,11 @@ class Cita(models.Model):
         related_name='citas',
         verbose_name='Vehículo',
     )
-    servicio = models.ForeignKey(
-        Servicio,
+    paquete = models.ForeignKey(
+        Paquete,
         on_delete=models.PROTECT,
         related_name='citas',
-        verbose_name='Servicio',
+        verbose_name='Paquete',
     )
     fecha_hora = models.DateTimeField(verbose_name='Fecha y hora')
     estado = models.CharField(
@@ -88,8 +88,8 @@ class Cita(models.Model):
         ordering = ['-fecha_hora']
 
     def __str__(self):
-        return f'Cita #{self.pk} — {self.cliente} | {self.servicio} | {self.fecha_hora:%d/%m/%Y %H:%M}'
-    
+        return f'Cita #{self.pk} — {self.cliente} | {self.paquete} | {self.fecha_hora:%d/%m/%Y %H:%M}'
+
     @property
     def puede_confirmarse(self):
         return self.estado == self.Estado.PENDIENTE
