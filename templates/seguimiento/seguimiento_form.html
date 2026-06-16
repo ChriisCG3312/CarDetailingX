@@ -3,37 +3,37 @@
 
 {% block contenido %}
 <div class="row justify-content-center">
-    <div class="col-lg-7">
+  <div class="col-md-7">
+    <p class="dp-eyebrow">Administración</p>
+    <h2 class="dp-title fs-4 mb-4">Asignar técnico a cita</h2>
 
-        <div class="mb-4">
-            <div class="dp-eyebrow">Seguimiento</div>
-
-            <h1 class="dp-title">
-                Asignar técnico
-            </h1>
+    <div class="dp-card p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">{{ field.label }}
+            {% if field.field.required %}<span class="text-danger ms-1">*</span>{% endif %}
+          </label>
+          {{ field }}
+          {% if field.errors %}
+            {% for error in field.errors %}
+            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+            {% endfor %}
+          {% endif %}
         </div>
+        {% endfor %}
 
-        <div class="dp-card p-4">
-
-            <div class="mb-4">
-                <div class="dp-section-label">
-                    Configuración
-                </div>
-
-                <h5 class="mb-0 fw-semibold">
-                    Asignar técnico a la cita
-                </h5>
-            </div>
-
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                {% include "partials/_form_card.html" with cancel_url="seguimiento:lista" %}
-
-            </form>
-
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn-pill-primary">
+            <i class="bi bi-check-lg me-2"></i>Crear seguimiento
+          </button>
+          <a href="{% url 'seguimiento:lista' %}" class="btn-pill-ghost">
+            <i class="bi bi-x-lg me-1"></i>Cancelar
+          </a>
         </div>
-
+      </form>
     </div>
+  </div>
 </div>
 {% endblock %}

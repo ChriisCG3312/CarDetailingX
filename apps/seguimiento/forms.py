@@ -13,7 +13,7 @@ class SeguimientoCrearForm(forms.ModelForm):
 
     class Meta:
         model = Seguimiento
-        fields = ['cita', 'tecnico', 'notas_iniciales', 'foto_antes']
+        fields = ['cita', 'tecnico', 'notas_iniciales']
         widgets = {
             'notas_iniciales': forms.Textarea(attrs={'rows': 3}),
         }
@@ -32,9 +32,6 @@ class SeguimientoCrearForm(forms.ModelForm):
             rol='tecnico', is_active=True
         )
 
-        # Foto antes obligatoria
-        self.fields['foto_antes'].required = True
-
         # Estilos Bootstrap
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
@@ -47,33 +44,23 @@ class SeguimientoCrearForm(forms.ModelForm):
             raise ValidationError('Esta cita ya tiene un seguimiento asignado.')
         return cita
 
-    def clean_foto_antes(self):
-        foto = self.cleaned_data.get('foto_antes')
-        if not foto:
-            raise ValidationError('La foto del vehículo antes del servicio es obligatoria.')
-        return foto
-
 
 class SeguimientoActualizarForm(forms.ModelForm):
     """Formulario para que el técnico actualice el estado del servicio."""
 
     class Meta:
         model = Seguimiento
-        fields = ['estado', 'notas_tecnico', 'foto_despues']
+        fields = ['estado', 'notas_tecnico', 'foto_antes', 'foto_despues']
         widgets = {
             'notas_tecnico': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Estilos Bootstrap
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-
         instance = kwargs.get('instance')
+
+        # Limitar opciones de estado: solo hacia adelante
         if instance:
-            # Limitar opciones de estado: solo hacia adelante
             estados_validos = [
                 (v, l) for v, l in Seguimiento.Estado.choices
                 if Seguimiento.ORDEN_ESTADOS.index(v)
@@ -84,10 +71,37 @@ class SeguimientoActualizarForm(forms.ModelForm):
                 choices=estados_validos,
             )
 
+        # Configurar campos de foto según el estado actual
+        if instance:
+            estado_actual = instance.estado
+
+            if estado_actual == Seguimiento.Estado.RECIBIDO:
+                # Foto antes obligatoria — el técnico documenta el estado inicial
+                self.fields['foto_antes'].label = 'Foto del vehículo al recibirlo'
+                self.fields['foto_antes'].help_text = 'Obligatoria. Documenta el estado del vehículo antes del detallado.'
+                self.fields['foto_antes'].required = True
+                del self.fields['foto_despues']
+
+            elif estado_actual in (Seguimiento.Estado.LISTO, Seguimiento.Estado.ENTREGADO):
+                # Foto después obligatoria — resultado del detallado
+                self.fields['foto_despues'].label = 'Foto del vehículo después del detallado'
+                self.fields['foto_despues'].help_text = 'Obligatoria. Documenta el resultado final del servicio.'
+                self.fields['foto_despues'].required = False
+                del self.fields['foto_antes']
+
+            else:
+                # Estados intermedios — sin fotos
+                del self.fields['foto_antes']
+                del self.fields['foto_despues']
+
+        # Estilos Bootstrap a todos los campos restantes
+        for field in self.fields.values():
+            if not isinstance(field.widget, forms.Select):
+                field.widget.attrs['class'] = 'form-control'
+
     def clean(self):
         cleaned_data = super().clean()
         nuevo_estado = cleaned_data.get('estado')
-        foto_despues = cleaned_data.get('foto_despues')
 
         # Validar que no retroceda estado
         if self.instance and self.instance.pk:
@@ -95,12 +109,20 @@ class SeguimientoActualizarForm(forms.ModelForm):
                     and nuevo_estado != self.instance.estado:
                 raise ValidationError('No puedes regresar a un estado anterior.')
 
+        # Foto antes obligatoria en estado recibido
+        if self.instance and self.instance.estado == Seguimiento.Estado.RECIBIDO:
+            foto_antes = cleaned_data.get('foto_antes')
+            if not foto_antes and not self.instance.foto_antes:
+                raise ValidationError(
+                    'Debes subir la foto del vehículo antes de continuar.'
+                )
+
         # Foto después obligatoria al marcar listo o entregado
         if nuevo_estado in (Seguimiento.Estado.LISTO, Seguimiento.Estado.ENTREGADO):
+            foto_despues = cleaned_data.get('foto_despues')
             if not foto_despues and not self.instance.foto_despues:
                 raise ValidationError(
-                    'Debes subir la foto del vehículo después del servicio '
-                    'antes de marcarlo como listo o entregado.'
+                    'Debes subir la foto del resultado antes de marcarlo como listo o entregado.'
                 )
 
         return cleaned_data
