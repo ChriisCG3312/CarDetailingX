@@ -10,38 +10,49 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-9">
+        <div class="col-lg-10">
             <div class="dp-eyebrow">Mi Auto</div>
             <h1 class="dp-title mb-3">Diseñar mi paquete personalizado</h1>
             <p class="text-muted mb-4">
-                Elige libremente los servicios individuales que deseas para tu vehículo. Conforme los selecciones, verás el resumen aquí abajo.
+                Elige libremente los servicios individuales que deseas para tu vehículo haciendo clic directo sobre los cuadros. ¡Arma tu combo ideal!
             </p>
 
             <div class="dp-card p-4 p-md-5">
                 <form method="post" novalidate id="personalizadoForm">
                     {% csrf_token %}
                     
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-dark fs-5 mb-2">
-                            Selecciona uno o más servicios <span class="text-muted" style="font-size: 0.85rem;">(Mantén presionado Ctrl para elegir varios)</span>
-                        </label>
+                    <div class="d-none">
                         {{ form.servicios }}
-                        {% if form.servicios.errors %}
-                            <div class="text-danger small mt-1">{{ form.servicios.errors }}</div>
-                        {% endif %}
                     </div>
 
-                    <!-- Visor Interactivo en Tiempo Real -->
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-muted small" style="letter-spacing: 0.05em;">
-                            RESUMEN DE TU COMBO PERSONALIZADO:
+                        <label class="form-label fw-bold text-dark fs-5 mb-3">
+                            Selecciona los servicios individuales que deseas incluir:
                         </label>
-                        <div id="visorServiciosCliente" class="d-flex flex-wrap gap-2 p-3 rounded" style="background: var(--dp-papel-2); border: 1px dashed #ECE8E0; min-height: 60px;">
-                            <span class="text-muted small italic" id="placeholderCliente">No has seleccionado ningún servicio todavía.</span>
+                        
+                        <div class="row row-cols-1 row-cols-md-3 g-3" id="clientServicesGrid">
+                            {% for id, label in form.fields.servicios.choices %}
+                            <div class="col">
+                                <div class="dp-card h-100 p-4 position-relative cursor-pointer client-service-card" data-value="{{ id }}" style="transition: all 0.2s ease; border: 1px solid #ECE8E0; background: #fff;">
+                                    <div class="position-absolute top-0 end-0 m-3 check-indicator d-none" style="background: var(--dp-ceramico); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(47, 111, 94, 0.08); color: var(--dp-ceramico);">
+                                            <i class="bi bi-stars fs-4"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <h5 class="fw-bold text-dark mb-1" style="font-size: 1.05rem;">{{ label }}</h5>
+                                    <span class="badge-rol badge-rol-cliente mt-2">Disponible</span>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
                         <a href="{% url 'servicios:catalogo' %}" class="btn-pill-ghost me-md-2" style="text-decoration: none;">
                             Cancelar
                         </a>
@@ -55,36 +66,42 @@
     </div>
 </div>
 
+<style>
+    /* Estilo de cuadro seleccionado para el cliente usando el verde cerámico premium */
+    .client-service-card.selected {
+        border-color: var(--dp-ceramico) !important;
+        background-color: rgba(47, 111, 94, 0.03) !important;
+        box-shadow: 0 5px 18px rgba(47, 111, 94, 0.1) !important;
+        transform: translateY(-3px);
+    }
+</style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const selectServicios = document.querySelector("select[name='servicios']");
-        const visor = document.getElementById("visorServiciosCliente");
-        const placeholder = document.getElementById("placeholderCliente");
+        const nativeSelect = document.querySelector("select[name='servicios']");
+        const clientCards = document.querySelectorAll(".client-service-card");
 
-        if (selectServicios && visor) {
-            function actualizarVisor() {
-                visor.innerHTML = "";
-                let seleccionados = 0;
+        if (nativeSelect && clientCards.length > 0) {
+            clientCards.forEach(card => {
+                const val = card.getAttribute("data-value");
+                const option = nativeSelect.querySelector(`option[value="${val}"]`);
 
-                Array.from(selectServicios.options).forEach(option => {
-                    if (option.selected) {
-                        seleccionados++;
-                        const badge = document.createElement("span");
-                        // Usamos badge-rol-cliente que tiene el verde cerámico de tu main.css
-                        badge.className = "badge-rol badge-rol-cliente px-3 py-2 shadow-sm d-inline-flex align-items-center";
-                        badge.style.borderRadius = "8px";
-                        badge.innerHTML = `<i class="bi bi-check2-circle me-1 text-accent"></i> ${option.text}`;
-                        visor.appendChild(badge);
+                card.addEventListener("click", function() {
+                    const isSelected = card.classList.toggle("selected");
+                    const indicator = card.querySelector(".check-indicator");
+                    
+                    if (isSelected) {
+                        indicator.classList.remove("d-none");
+                    } else {
+                        indicator.classList.add("d-none");
+                    }
+
+                    if (option) {
+                        option.selected = isSelected;
+                        nativeSelect.dispatchEvent(new Event('change'));
                     }
                 });
-
-                if (seleccionados === 0) {
-                    visor.appendChild(placeholder);
-                }
-            }
-
-            selectServicios.addEventListener("change", actualizarVisor);
-            actualizarVisor();
+            });
         }
     });
 </script>

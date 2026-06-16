@@ -1,15 +1,10 @@
 {% extends "base.html" %}
 {% block titulo %}
-    {% if object %}
-        Editar paquete
-    {% else %}
-        Crear paquete
-    {% endif %}
+    {% if object %}Editar paquete{% else %}Crear paquete{% endif %}
 {% endblock %}
 
 {% block contenido %}
 <div class="container py-5">
-
     <div class="mb-4">
         <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost text-decoration-none">
             <i class="bi bi-arrow-left me-2"></i>Regresar a paquetes
@@ -17,83 +12,105 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-9">
-
-            <p class="dp-eyebrow">Paquetes</p>
+        <div class="col-lg-10">
+            <div class="dp-eyebrow">Paquetes</div>
             <h1 class="dp-title mb-3">
-                {% if object %}
-                    Editar paquete
-                {% else %}
-                    Crear nuevo paquete
-                {% endif %}
+                {% if object %}Editar paquete{% else %}Crear nuevo paquete{% endif %}
             </h1>
-
-            <p class="mb-4" style="color: #9A948A;">
-                Configura un nuevo combo agrupando varios servicios individuales y define si deseas aplicarle un descuento inicial automático.
-            </p>
+            <p class="text-muted mb-4">Configure los datos base y seleccione los servicios individuales haciendo clic directo sobre sus tarjetas.</p>
 
             <div class="dp-card p-4 p-md-5">
-                {% if object %}
-                <div class="mb-4">
-                    <span class="dp-section-label">Paquete seleccionado</span>
-                    <div class="mt-2 px-3 py-2 rounded" style="background: var(--dp-papel-2); border: 1px solid #E4DFD6; font-family: var(--font-mono);">
-                        {{ object.nombre }}
-                    </div>
-                </div>
-                {% endif %}
-
                 <form method="post" novalidate id="paqueteForm">
                     {% csrf_token %}
-
-                    {% include "partials/_form_card.html" with form=form cancel_url="servicios:paquete_admin_list" texto_boton="Guardar cambios" %}
-
-                    <div class="mt-4 pt-4" style="border-top: 1px dashed #E4DFD6;">
-                        <label class="form-label fw-semibold small" style="letter-spacing: 0.05em; color: var(--dp-carbon);">
-                            SERVICIOS QUE SE INCLUIRÁN EN ESTE COMBO
+                    
+                    {% include "partials/_form_card.html" %}
+                    
+                    <div class="mb-4 mt-4">
+                        <label class="form-label fw-bold text-muted small mb-3" style="letter-spacing: 0.05em;">
+                            SERVICIOS INCLUIDOS EN EL PAQUETE (HAGA CLIC PARA SELECCIONAR):
                         </label>
-                        <div id="visorServicios" class="d-flex flex-wrap gap-2 p-3 rounded" style="background: var(--dp-papel-2); border: 1px dashed #E4DFD6; min-height: 50px;">
-                            <span class="small" id="placeholderVisor" style="color: #9A948A; font-style: italic;">
-                                Ningún servicio seleccionado. Mantén presionado Ctrl para elegir varios arriba.
-                            </span>
+                        
+                        <div class="row row-cols-1 row-cols-md-3 g-3" id="servicesGrid">
+                            {% for id, label in form.fields.servicios.choices %}
+                            <div class="col">
+                                <div class="dp-card h-100 p-3 position-relative cursor-pointer service-selectable-card" data-value="{{ id }}" style="transition: all 0.2s ease; border: 1px solid #ECE8E0;">
+                                    <div class="position-absolute top-0 end-0 m-2 check-badge d-none" style="background: var(--dp-ceramico); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="bi bi-box-seam text-muted fs-4"></i>
+                                        <h6 class="mb-0 fw-bold text-dark service-title" style="font-size: 0.95rem;">{{ label }}</h6>
+                                    </div>
+                                    <p class="text-muted small mb-0">Servicio disponible para el catálogo de CarDetailingX.</p>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                        <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost me-md-2" style="text-decoration: none;">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-pill-primary">
+                            <i class="bi bi-check-circle me-2"></i>Guardar Combo
+                        </button>
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 </div>
 
+<style>
+    /* Ocultamos por completo el select múltiple feo de Django automáticamente */
+    select[name="servicios"] {
+        display: none !important;
+    }
+    /* Estilo de tarjeta seleccionada con la identidad de Cueto */
+    .service-selectable-card.selected {
+        border-color: var(--dp-ambar) !important;
+        background-color: rgba(232, 162, 61, 0.05) !important;
+        box-shadow: 0 4px 15px rgba(232, 162, 61, 0.12) !important;
+        transform: translateY(-2px);
+    }
+</style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const selectServicios = document.querySelector("select[name='servicios']");
-        const visor = document.getElementById("visorServicios");
-        const placeholder = document.getElementById("placeholderVisor");
+        const selectNative = document.querySelector("select[name='servicios']");
+        const cards = document.querySelectorAll(".service-selectable-card");
 
-        if (selectServicios && visor && placeholder) {
-            function actualizarVisor() {
-                visor.querySelectorAll(".visor-badge").forEach(b => b.remove());
-                placeholder.style.display = "none";
+        if (selectNative && cards.length > 0) {
+            // Sincronizar el estado inicial (por ejemplo, al Editar un paquete existente)
+            cards.forEach(card => {
+                const val = card.getAttribute("data-value");
+                const option = selectNative.querySelector(`option[value="${val}"]`);
+                if (option && option.selected) {
+                    card.classList.add("selected");
+                    card.querySelector(".check-badge").classList.remove("d-none");
+                }
 
-                let seleccionados = 0;
-                Array.from(selectServicios.options).forEach(option => {
-                    if (option.selected) {
-                        seleccionados++;
-                        const badge = document.createElement("span");
-                        badge.className = "visor-badge small";
-                        badge.style.cssText = "font-family: var(--font-mono); background: var(--dp-ceramico); color: #fff; padding: 0.35rem 0.75rem; border-radius: 999px;";
-                        badge.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>${option.text}`;
-                        visor.appendChild(badge);
+                // Evento de clic en la tarjeta personalizada
+                card.addEventListener("click", function() {
+                    const isSelected = card.classList.toggle("selected");
+                    const check = card.querySelector(".check-badge");
+                    
+                    if (isSelected) {
+                        check.classList.remove("d-none");
+                    } else {
+                        check.classList.add("d-none");
+                    }
+
+                    // Cambiamos el valor en el select oculto de Django
+                    if (option) {
+                        option.selected = isSelected;
+                        // Forzar el evento de cambio por si acaso
+                        selectNative.dispatchEvent(new Event('change'));
                     }
                 });
-
-                if (seleccionados === 0) {
-                    placeholder.style.display = "inline";
-                }
-            }
-
-            selectServicios.addEventListener("change", actualizarVisor);
-            actualizarVisor();
+            });
         }
     });
 </script>
