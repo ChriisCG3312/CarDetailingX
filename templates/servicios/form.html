@@ -1,80 +1,32 @@
 {% extends "base.html" %}
-
-{% block titulo %}
-    {% if object %}
-        Editar servicio
-    {% else %}
-        Registrar servicio
-    {% endif %}
-{% endblock %}
+{% block titulo %}{{ titulo }}{% endblock %}
 
 {% block contenido %}
 <div class="container py-5">
-
     <div class="mb-4">
-        <a
-            href="{% url 'servicios:admin_lista' %}"
-            class="btn-pill-ghost text-decoration-none"
-        >
-            <i class="bi bi-arrow-left me-2"></i>
-            Regresar al catálogo
+        <a href="{% url 'servicios:admin_lista' %}" class="btn-pill-ghost text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>Regresar a la lista
         </a>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-9">
+            
+            <div class="dp-eyebrow">Administración</div>
+            <h1 class="dp-title mb-4">{{ titulo }}</h1>
 
-            <div class="dp-eyebrow">
-                Administración
-            </div>
-
-            <h1 class="dp-title mb-4">
-                {% if object %}
-                    Editar servicio
-                {% else %}
-                    Registrar nuevo servicio
-                {% endif %}
-            </h1>
-
+            <!-- Contenedor Premium de Cueto -->
             <div class="dp-card p-4 p-md-5">
-
-                {% if object %}
-                    <div class="mb-4">
-                        <span class="dp-section-label">
-                            Servicio seleccionado
-                        </span>
-
-                        <div
-                            class="mt-2 px-3 py-2 rounded"
-                            style="
-                                background: var(--dp-papel-2);
-                                border: 1px solid #E4DFD6;
-                                font-family: var(--font-mono);
-                            "
-                        >
-                            {{ object.nombre }}
-                        </div>
-                    </div>
-                {% endif %}
-
                 <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
-
-                    {% include "partials/_form_card.html" %}
-                    <div class="d-flex justify-content-end align-items-center gap-3 mt-4">
-                        <a href="{% url 'servicios:admin_lista' %}" class="btn-pill-ghost text-decoration-none">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn-pill-primary">
-                            <i class="bi bi-check-circle me-2"></i>Guardar servicio
-                        </button>
-                    </div>
+                    
+                    <!-- Incluimos el parcial pasándole los parámetros limpios -->
+                    {% include "partials/_form_card.html" with texto_boton="Guardar servicio" cancel_url="servicios:admin_lista" %}
+                    
                 </form>
-
             </div>
 
         </div>
     </div>
-
 </div>
 {% endblock %}
