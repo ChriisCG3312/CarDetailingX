@@ -21,15 +21,12 @@
                 <form method="post" novalidate id="personalizadoForm">
                     {% csrf_token %}
                     
-                    <div class="d-none">
-                        {{ form.servicios }}
-                    </div>
-
                     <div class="mb-4">
                         <label class="form-label fw-bold text-dark fs-5 mb-3">
                             Selecciona los servicios individuales que deseas incluir:
                         </label>
                         
+                        <!-- Grid de Cuadros Interactivos para el Cliente -->
                         <div class="row row-cols-1 row-cols-md-3 g-3" id="clientServicesGrid">
                             {% for id, label in form.fields.servicios.choices %}
                             <div class="col">
@@ -37,13 +34,11 @@
                                     <div class="position-absolute top-0 end-0 m-3 check-indicator d-none" style="background: var(--dp-ceramico); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">
                                         <i class="bi bi-check-lg"></i>
                                     </div>
-                                    
                                     <div class="mb-3">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(47, 111, 94, 0.08); color: var(--dp-ceramico);">
                                             <i class="bi bi-stars fs-4"></i>
                                         </div>
                                     </div>
-                                    
                                     <h5 class="fw-bold text-dark mb-1" style="font-size: 1.05rem;">{{ label }}</h5>
                                     <span class="badge-rol badge-rol-cliente mt-2">Disponible</span>
                                 </div>
@@ -52,14 +47,9 @@
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
-                        <a href="{% url 'servicios:catalogo' %}" class="btn-pill-ghost me-md-2" style="text-decoration: none;">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn-pill-primary justify-content-center">
-                            <i class="bi bi-calendar-check me-2"></i>Crear mi paquete y agendar
-                        </button>
-                    </div>
+                    <!-- acopla los botones nativos del parcial abajo -->
+                    {% include "partials/_form_card.html" with texto_boton="Crear mi paquete y agendar" cancel_url="servicios:catalogo" %}
+
                 </form>
             </div>
         </div>
@@ -67,7 +57,7 @@
 </div>
 
 <style>
-    /* Estilo de cuadro seleccionado para el cliente usando el verde cerámico premium */
+    select[name="servicios"] { display: none !important; }
     .client-service-card.selected {
         border-color: var(--dp-ceramico) !important;
         background-color: rgba(47, 111, 94, 0.03) !important;
@@ -80,22 +70,14 @@
     document.addEventListener("DOMContentLoaded", function() {
         const nativeSelect = document.querySelector("select[name='servicios']");
         const clientCards = document.querySelectorAll(".client-service-card");
-
         if (nativeSelect && clientCards.length > 0) {
             clientCards.forEach(card => {
                 const val = card.getAttribute("data-value");
                 const option = nativeSelect.querySelector(`option[value="${val}"]`);
-
                 card.addEventListener("click", function() {
                     const isSelected = card.classList.toggle("selected");
                     const indicator = card.querySelector(".check-indicator");
-                    
-                    if (isSelected) {
-                        indicator.classList.remove("d-none");
-                    } else {
-                        indicator.classList.add("d-none");
-                    }
-
+                    indicator.classList.toggle("d-none", !isSelected);
                     if (option) {
                         option.selected = isSelected;
                         nativeSelect.dispatchEvent(new Event('change'));

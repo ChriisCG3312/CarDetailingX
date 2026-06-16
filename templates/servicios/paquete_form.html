@@ -23,8 +23,10 @@
                 <form method="post" novalidate id="paqueteForm">
                     {% csrf_token %}
                     
-                    {% include "partials/_form_card.html" %}
+                    <!-- Renderiza los campos base y sus botones nativos -->
+                    {% include "partials/_form_card.html" with texto_boton="Guardar Combo" cancel_url="servicios:paquete_admin_list" %}
                     
+                    <!-- Grid de Tarjetas Visuales (el select oculto está aquí abajo) -->
                     <div class="mb-4 mt-4">
                         <label class="form-label fw-bold text-muted small mb-3" style="letter-spacing: 0.05em;">
                             SERVICIOS INCLUIDOS EN EL PAQUETE (HAGA CLIC PARA SELECCIONAR):
@@ -34,29 +36,20 @@
                             {% for id, label in form.fields.servicios.choices %}
                             <div class="col">
                                 <div class="dp-card h-100 p-3 position-relative cursor-pointer service-selectable-card" data-value="{{ id }}" style="transition: all 0.2s ease; border: 1px solid #ECE8E0;">
-                                    <div class="position-absolute top-0 end-0 m-2 check-badge d-none" style="background: var(--dp-ceramico); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                    <div class="position-absolute top-0 end-0 m-2 check-badge d-none" style="background: var(--dp-ceramico); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
                                         <i class="bi bi-check-lg"></i>
                                     </div>
-                                    
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="bi bi-box-seam text-muted fs-4"></i>
                                         <h6 class="mb-0 fw-bold text-dark service-title" style="font-size: 0.95rem;">{{ label }}</h6>
                                     </div>
-                                    <p class="text-muted small mb-0">Servicio disponible para el catálogo de CarDetailingX.</p>
+                                    <p class="text-muted small mb-0">Servicio disponible para el catálogo.</p>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
-                        <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost me-md-2" style="text-decoration: none;">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn-pill-primary">
-                            <i class="bi bi-check-circle me-2"></i>Guardar Combo
-                        </button>
-                    </div>
                 </form>
             </div>
         </div>
@@ -64,11 +57,7 @@
 </div>
 
 <style>
-    /* Ocultamos por completo el select múltiple feo de Django automáticamente */
-    select[name="servicios"] {
-        display: none !important;
-    }
-    /* Estilo de tarjeta seleccionada con la identidad de Cueto */
+    select[name="servicios"] { display: none !important; }
     .service-selectable-card.selected {
         border-color: var(--dp-ambar) !important;
         background-color: rgba(232, 162, 61, 0.05) !important;
@@ -81,9 +70,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         const selectNative = document.querySelector("select[name='servicios']");
         const cards = document.querySelectorAll(".service-selectable-card");
-
         if (selectNative && cards.length > 0) {
-            // Sincronizar el estado inicial (por ejemplo, al Editar un paquete existente)
             cards.forEach(card => {
                 const val = card.getAttribute("data-value");
                 const option = selectNative.querySelector(`option[value="${val}"]`);
@@ -91,22 +78,12 @@
                     card.classList.add("selected");
                     card.querySelector(".check-badge").classList.remove("d-none");
                 }
-
-                // Evento de clic en la tarjeta personalizada
                 card.addEventListener("click", function() {
                     const isSelected = card.classList.toggle("selected");
                     const check = card.querySelector(".check-badge");
-                    
-                    if (isSelected) {
-                        check.classList.remove("d-none");
-                    } else {
-                        check.classList.add("d-none");
-                    }
-
-                    // Cambiamos el valor en el select oculto de Django
+                    check.classList.toggle("d-none", !isSelected);
                     if (option) {
                         option.selected = isSelected;
-                        // Forzar el evento de cambio por si acaso
                         selectNative.dispatchEvent(new Event('change'));
                     }
                 });
