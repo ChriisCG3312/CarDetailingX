@@ -1,74 +1,60 @@
 {% extends "base.html" %}
 
 {% block titulo %}
-    {% if object %}
-        Editar servicio
-    {% else %}
-        Registrar servicio
-    {% endif %}
+{% if object %}
+Editar servicio
+{% else %}
+Registrar servicio
+{% endif %}
 {% endblock %}
 
 {% block contenido %}
 <div class="container py-5">
 
     <div class="mb-4">
-        <a
-            href="{% url 'servicios:admin_lista' %}"
-            class="btn-pill-ghost text-decoration-none"
-        >
+
+        <a href="{% url 'servicios:admin_lista' %}" class="btn-pill-ghost text-decoration-none">
             <i class="bi bi-arrow-left me-2"></i>
-            Regresar al catálogo
+            Regresar a Servicios  
         </a>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-9">
 
-            <div class="dp-eyebrow">
+            <p class="dp-eyebrow">
                 Administración
-            </div>
+            </p>
 
             <h1 class="dp-title mb-4">
                 {% if object %}
-                    Editar servicio
+                Editar servicio
                 {% else %}
-                    Registrar nuevo servicio
+                Registrar nuevo servicio
                 {% endif %}
             </h1>
 
             <div class="dp-card p-4 p-md-5">
 
                 {% if object %}
-                    <div class="mb-4">
-                        <span class="dp-section-label">
-                            Servicio seleccionado
-                        </span>
+                <div class="mb-4">
+                    <span class="dp-section-label">
+                        Servicio seleccionado
+                    </span>
 
-                        <div
-                            class="mt-2 px-3 py-2 rounded"
-                            style="
+                    <div class="mt-2 px-3 py-2 rounded" style="
                                 background: var(--dp-papel-2);
                                 border: 1px solid #E4DFD6;
                                 font-family: var(--font-mono);
-                            "
-                        >
-                            {{ object.nombre }}
-                        </div>
+                            ">
+                        {{ object.nombre }}
                     </div>
+                </div>
                 {% endif %}
 
                 <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
-
-                    {% include "partials/_form_card.html" %}
-                    <div class="d-flex justify-content-end align-items-center gap-3 mt-4">
-                        <a href="{% url 'servicios:admin_lista' %}" class="btn-pill-ghost text-decoration-none">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn-pill-primary">
-                            <i class="bi bi-check-circle me-2"></i>Guardar servicio
-                        </button>
-                    </div>
+                    {% include "partials/_form_card.html" with form=form cancel_url="servicios:admin_lista" texto_boton="Guardar servicio" %}
                 </form>
 
             </div>

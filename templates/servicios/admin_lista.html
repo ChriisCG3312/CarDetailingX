@@ -2,89 +2,85 @@
 {% block titulo %}Gestión de servicios{% endblock %}
 
 {% block contenido %}
-<div class="div container mt-5">
-    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
-        <div>
-            <p class="dp-eyebrow">Administración</p>
-            <h1 class="dp-title">Gestión de servicios</h1>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost">
-                <i class="bi bi-box-seam me-1"></i>Ver paquetes
-            </a>
-            <a href="{% url 'servicios:promociones' %}" class="btn-pill-ghost" style="text-decoration: none;">
-                <i class="bi bi-tag-fill me-1"></i>Ver promociones
-            </a>
-            <a href="{% url 'servicios:crear' %}" class="btn-pill-primary" style="text-decoration: none;">
-                <i class="bi bi-plus-circle me-1"></i>Nuevo servicio
-            </a>
-        </div>
-    </div>
+<div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+  <div>
+    <p class="dp-eyebrow">Administración</p>
+    <h1 class="dp-title">Gestión de servicios</h1>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'servicios:paquete_admin_list' %}" class="btn-pill-ghost">
+      <i class="bi bi-box-seam me-1"></i>Ver paquetes
+    </a>
+    <a href="{% url 'servicios:promociones' %}" class="btn-pill-ghost">
+      <i class="bi bi-tag-fill me-1"></i>Ver promociones
+    </a>
+    <a href="{% url 'servicios:crear' %}" class="btn-pill-primary">
+      <i class="bi bi-plus-circle me-1"></i>Nuevo servicio
+    </a>
+  </div>
+</div>
 
-    <div class="card shadow-sm bg-dark text-white border-secondary">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle mb-0">
-                    <thead class="table-secondary text-dark">
-                        <tr>
-                            <th>Imagen</th>
-                            <th>Nombre</th>
-                            <th>Precio Base</th>
-                            <th>Estado</th>
-                            <th>Duración</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for servicio in servicios %}
-                        <tr>
-                            <td>
-                                {% if servicio.imagen %}
-                                    <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="img-thumbnail bg-secondary" style="width: 60px; height: 60px; object-fit: cover;">
-                                {% else %}
-                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="width: 60px; height: 60px;">
-                                        <i class="bi bi-image flex-shrink-0"></i>
-                                    </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <strong style="font-family: var(--font-display); font-weight: 800; color: var(--dp-carbon);">{{ servicio.nombre }}</strong>
-                                <small class="d-block text-muted text-truncate" style="max-width: 250px; color: #9A948A;">{{ servicio.descripcion }}</small>
-                            </td>
-                            <td style="font-family: var(--font-mono); color: #9A948A;">
-                                ${{ servicio.precio }} MXN
-                            </td>
-                            <td>
-                                {% if servicio.activo %}
-                                    <span class="badge-estado-activo">Activo</span>
-                                {% else %}
-                                    <span class="badge-estado-inactivo">Inactivo</span>
-                                {% endif %}
-                            </td>
-                            <td style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--dp-carbon);">
-                                <i class="bi bi-clock me-1" style="color: var(--dp-ambar);"></i>{{ servicio.duracion_hours|default:servicio.duracion_horas }} hrs
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'servicios:editar' servicio.pk %}" class="adm-action me-1" title="Editar">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a href="{% url 'servicios:eliminar' servicio.pk %}" class="adm-action adm-action-danger" title="Desactivar">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5" style="color: #9A948A;">
-                                <i class="bi bi-info-circle d-block fs-2 mb-2"></i>
-                                No hay servicios registrados todavía. ¡Crea el primero!
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="dp-card border-0 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover adm-table mb-0">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Precio base</th>
+          <th>Estado</th>
+          <th>Duración</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for servicio in servicios %}
+        <tr {% if not servicio.activo %}class="is-inactive"{% endif %}>
+          <td>
+            {% if servicio.imagen %}
+            <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="rounded" style="width: 56px; height: 56px; object-fit: cover;">
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center rounded" style="width: 56px; height: 56px; background: var(--dp-papel-2); color: #C9C2B5;">
+              <i class="bi bi-image"></i>
             </div>
-        </div>
-    </div>
+            {% endif %}
+          </td>
+          <td>
+            <strong style="font-family: var(--font-display); font-weight: 800; color: var(--dp-carbon);">{{ servicio.nombre }}</strong>
+            <small class="d-block text-truncate" style="max-width: 250px; color: #9A948A;">{{ servicio.descripcion }}</small>
+          </td>
+          <td style="font-family: var(--font-mono); color: #9A948A;">
+            ${{ servicio.precio }} MXN
+          </td>
+          <td>
+            {% if servicio.activo %}
+            <span class="badge-estado-activo">Activo</span>
+            {% else %}
+            <span class="badge-estado-inactivo">Inactivo</span>
+            {% endif %}
+          </td>
+          <td style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--dp-carbon);">
+            <i class="bi bi-clock me-1" style="color: var(--dp-ambar);"></i>{{ servicio.duracion_hours|default:servicio.duracion_horas }} hrs
+          </td>
+          <td class="text-center">
+            <a href="{% url 'servicios:editar' servicio.pk %}" class="adm-action me-1" title="Editar">
+              <i class="bi bi-pencil-square"></i>
+            </a>
+            <a href="{% url 'servicios:eliminar' servicio.pk %}" class="adm-action adm-action-danger" title="Desactivar">
+              <i class="bi bi-trash"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-5" style="color: #9A948A;">
+            <i class="bi bi-info-circle d-block fs-2 mb-2"></i>
+            No hay servicios registrados todavía. ¡Crea el primero!
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

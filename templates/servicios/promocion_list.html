@@ -9,9 +9,14 @@
             <div class="dp-eyebrow">Administración</div>
             <h1 class="dp-title mb-0">Promociones y descuentos</h1>
         </div>
-        <a href="{% url 'servicios:crear_promo' %}" class="btn-pill-primary text-decoration-none">
-            <i class="bi bi-plus-circle me-2"></i>Nueva promoción
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'servicios:admin_lista' %}" class="btn-pill-ghost text-decoration-none">
+                <i class="bi bi-arrow-left me-2"></i>Ir a Servicios
+            </a>
+            <a href="{% url 'servicios:crear_promo' %}" class="btn-pill-primary text-decoration-none">
+                <i class="bi bi-plus-circle me-2"></i>Nueva promoción
+            </a>
+        </div>
     </div>
 
     <!-- Tabla de Promociones con Look de Cueto y Lógica de Paquetes -->

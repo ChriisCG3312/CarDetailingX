@@ -11,15 +11,6 @@
     </a>
   </div>
 
-  {% if messages %}
-    {% for msg in messages %}
-      <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
-        {{ msg }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
-
   {% if vehiculos %}
     <div class="table-responsive">
       <table class="table table-hover align-middle">

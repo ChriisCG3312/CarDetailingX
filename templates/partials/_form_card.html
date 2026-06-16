@@ -56,7 +56,13 @@ Debe renderizarse dentro de un <form>.
     class="d-flex gap-2 mt-4 pt-3"
     style="border-top: 1px dashed #E4DFD6;"
 >
-
+    <button
+        type="submit"
+        class="btn-pill-primary"
+    >
+        <i class="bi bi-check2 me-1"></i>
+        {{ texto_boton|default:"Guardar" }}
+    </button>
 
     {% if cancel_url %}
     <a
