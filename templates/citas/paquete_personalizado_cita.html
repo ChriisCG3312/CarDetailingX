@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block titulo %}Diseñar mi paquete y agendar{% endblock %}
+
+{% block contenido %}
+<div class="container py-5">
+    <div class="mb-4">
+        <a href="{% url 'servicios:catalogo' %}" class="btn-pill-ghost text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>Regresar al catálogo
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <div class="dp-eyebrow">Mi Auto</div>
+            <h1 class="dp-title mb-3">Diseñar mi paquete y agendar</h1>
+            <p class="text-muted mb-5">
+                Elige libremente los servicios individuales que deseas para tu vehículo haciendo clic directo sobre los cuadros y agenda tu cita en un solo paso.
+            </p>
+
+            <form method="post" novalidate id="cita-personalizada-form">
+                {% csrf_token %}
+
+                <div class="dp-card p-4 p-md-5 mb-5">
+                    <label class="form-label fw-bold text-dark fs-5 mb-3">
+                        1. Selecciona los servicios individuales que deseas incluir:
+                    </label>
+                    
+                    <div class="row row-cols-1 row-cols-md-3 g-3" id="clientServicesGrid">
+                        {% for id, label in form_servicios.fields.servicios.choices %}
+                        <div class="col">
+                            <div class="dp-card h-100 p-4 position-relative cursor-pointer client-service-card" data-value="{{ id }}" style="transition: all 0.2s ease; border: 1px solid #ECE8E0; background: #fff;">
+                                <div class="position-absolute top-0 end-0 m-3 check-indicator d-none" style="background: var(--dp-ceramico); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(47, 111, 94, 0.08); color: var(--dp-ceramico);">
+                                        <i class="bi bi-stars fs-4"></i>
+                                    </div>
+                                </div>
+                                <h5 class="fw-bold text-dark mb-1" style="font-size: 1.05rem;">{{ label }}</h5>
+                                <span class="badge-rol badge-rol-cliente mt-2">Disponible</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-none">
+                        {{ form_servicios.servicios }}
+                    </div>
+                    <div id="error-servicios" class="text-danger small mt-2 d-none">
+                        Debes seleccionar al menos un servicio para armar tu paquete.
+                    </div>
+                </div>
+
+
+                <div class="dp-card p-4 p-md-5">
+                    <label class="form-label fw-bold text-dark fs-5 mb-4">
+                        2. Completa los datos para agendar tu espacio:
+                    </label>
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label for="{{ form_cita.vehiculo.id_for_label }}" class="form-label fw-semibold" style="color: var(--dp-carbon);">Vehículo</label>
+                            {{ form_cita.vehiculo }}
+                            {% if form_cita.vehiculo.errors %}
+                                <div class="invalid-feedback d-block" style="color: #B5563E;">{{ form_cita.vehiculo.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label for="id-fecha" class="form-label fw-semibold" style="color: var(--dp-carbon);">Fecha de la Cita</label>
+                            <input type="date" id="id-fecha" class="form-control" min="{{ hoy }}" onchange="cargarSlots()">
+                            <div class="form-text" style="color: #9A948A;">Lunes a sábado</div>
+                            <div id="error-fecha" class="text-danger small mt-1" style="display:none; color: #B5563E;">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> No se atiende los domingos.
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold" style="color: var(--dp-carbon);">Horarios disponibles</label>
+                            <div id="slots-loading" class="text-muted small mb-2" style="display:none">
+                                <i class="bi bi-hourglass-split me-1"></i>Buscando espacios libres...
+                            </div>
+                            <div id="slots-grid" class="d-flex flex-wrap gap-2"></div>
+                            <div id="slots-placeholder" class="text-muted small">
+                                Selecciona una fecha en el calendario primero.
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="fecha_hora" id="fecha_hora_input" value="{{ form_cita.fecha_hora.value|default:'' }}">
+
+                        <div id="seleccion-resumen" class="col-12" style="display:none">
+                            <div class="alert alert-success py-3 mb-0 border-0 shadow-sm d-flex align-items-center" style="background-color: #E3F0EA; color: var(--dp-ceramico); border-radius: 10px;">
+                                <i class="bi bi-calendar-check-fill fs-5 me-2"></i>
+                                <strong id="seleccion-texto"></strong>
+                            </div>
+                        </div>
+
+                        {% if form_cita.fecha_hora.errors %}
+                            <div class="col-12">
+                                <div class="invalid-feedback d-block" style="color: #B5563E;">{{ form_cita.fecha_hora.errors.0 }}</div>
+                            </div>
+                        {% endif %}
+
+                        <div class="col-12">
+                            <label for="{{ form_cita.notas_cliente.id_for_label }}" class="form-label fw-semibold" style="color: var(--dp-carbon);">
+                                Notas adicionales <span class="text-muted small">(Opcional, indicaciones especiales para el cuidado de tu pintura)</span>
+                            </label>
+                            {{ form_cita.notas_cliente }}
+                            {% if form_cita.notas_cliente.errors %}
+                                <div class="invalid-feedback d-block" style="color: #B5563E;">{{ form_cita.notas_cliente.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if form_cita.non_field_errors %}
+                            <div class="col-12">
+                                <div class="alert alert-danger py-2" style="background-color: #F6E7E2; color: #B5563E; border: none; border-radius: 10px;">
+                                    {% for error in form_cita.non_field_errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-5 pt-4" style="border-top: 1px dashed #E4DFD6;">
+                        <button type="submit" class="btn-pill-primary" id="btn-submit" disabled>
+                            <i class="bi bi-calendar-plus me-2"></i> Confirmar y agendar cita
+                        </button>
+                        <a href="{% url 'servicios:catalogo' %}" class="btn-pill-ghost text-decoration-none">
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos estéticos de las tarjetas del Catálogo */
+    .client-service-card.selected {
+        border-color: var(--dp-ceramico) !important;
+        background-color: rgba(47, 111, 94, 0.03) !important;
+        box-shadow: 0 5px 18px rgba(47, 111, 94, 0.1) !important;
+        transform: translateY(-3px);
+    }
+    /* Estilización del layout inyectado para los botones de horas del script de slots */
+    #slots-grid .btn {
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        padding: 0.4rem 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// VARIABLES ORIGINALES DEL BACKEND DE CITAS
+const API_URL = "{% url 'citas:api_horarios' %}";
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Lógica 1: Controladores interactivos de las tarjetas de servicios
+    const nativeSelect = document.querySelector("select[name='servicios']");
+    const clientCards = document.querySelectorAll(".client-service-card");
+    const errorServicios = document.getElementById("error-servicios");
+
+    if (nativeSelect && clientCards.length > 0) {
+        clientCards.forEach(card => {
+            card.addEventListener("click", function() {
+                const val = card.getAttribute("data-value");
+                const option = nativeSelect.querySelector(`option[value="${val}"]`);
+                
+                const isSelected = card.classList.toggle("selected");
+                card.querySelector(".check-indicator").classList.toggle("d-none", !isSelected);
+                
+                if (option) {
+                    option.selected = isSelected;
+                    nativeSelect.dispatchEvent(new Event('change'));
+                }
+                validarFormularioListo();
+            });
+        });
+    }
+
+    // Validar si el botón de guardar debe habilitarse o quedarse bloqueado
+    function validarFormularioListo() {
+        const fechaHora = document.getElementById('fecha_hora_input').value;
+        const serviciosSeleccionados = Array.from(nativeSelect.options).some(o => o.selected);
+        const btnSubmit = document.getElementById('btn-submit');
+
+        if (serviciosSeleccionados) {
+            errorServicios.classList.add("d-none");
+        } else {
+            errorServicios.classList.remove("d-none");
+        }
+
+        if (fechaHora && serviciosSeleccionados) {
+            btnSubmit.disabled = false;
+        } else {
+            btnSubmit.disabled = true;
+        }
+    }
+
+    // Vinculamos la validación global a la función interna del script original
+    window.validarFormularioListo = validarFormularioListo;
+});
+
+// LÓGICA 2: LLAMADAS ASÍNCRONAS ORIGINALES DE LA CITA (ADAPTADAS)
+async function cargarSlots() {
+    const fechaInput = document.getElementById('id-fecha');
+    const fecha = fechaInput.value;
+    const slotsGrid = document.getElementById('slots-grid');
+    const placeholder = document.getElementById('slots-placeholder');
+    const loading = document.getElementById('slots-loading');
+    const errorFecha = document.getElementById('error-fecha');
+
+    slotsGrid.innerHTML = '';
+    placeholder.style.display = 'none';
+    errorFecha.style.display = 'none';
+    document.getElementById('fecha_hora_input').value = '';
+    document.getElementById('btn-submit').disabled = true;
+    document.getElementById('seleccion-resumen').style.display = 'none';
+
+    if (!fecha) return;
+
+    const d = new Date(fecha + 'T12:00:00');
+    if (d.getDay() === 0) {
+        errorFecha.style.display = 'block';
+        return;
+    }
+
+    loading.style.display = 'block';
+
+    try {
+        const resp = await fetch(`${API_URL}?fecha=${fecha}`);
+        const data = await resp.json();
+        loading.style.display = 'none';
+
+        if (!data.slots || data.slots.length === 0) {
+            slotsGrid.innerHTML = '<span class="text-muted small">No hay horarios disponibles para esta fecha.</span>';
+            return;
+        }
+
+        data.slots.forEach(slot => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = slot.label;
+            btn.className = slot.disponible ? 'btn btn-sm btn-outline-success' : 'btn btn-sm btn-outline-danger';
+            btn.disabled = !slot.disponible;
+            if (slot.disponible) {
+                btn.onclick = () => seleccionarHora(fecha, slot.hora, slot.label, btn);
+            }
+            slotsGrid.appendChild(btn);
+        });
+
+    } catch(e) {
+        loading.style.display = 'none';
+        slotsGrid.innerHTML = '<span class="text-danger small">Error al conectar con el servidor de horarios.</span>';
+    }
+}
+
+function seleccionarHora(fecha, hora, label, btnEl) {
+    document.querySelectorAll('#slots-grid button').forEach(b => {
+        b.classList.remove('btn-success');
+        if (!b.disabled) b.classList.add('btn-outline-success');
+    });
+    btnEl.classList.remove('btn-outline-success');
+    btnEl.classList.add('btn-success');
+
+    const valor = `${fecha} ${String(hora).padStart(2,'0')}:00`;
+    document.getElementById('fecha_hora_input').value = valor;
+
+    const d = new Date(fecha + 'T12:00:00');
+    const diaIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+    const texto = `Cita lista para el ${DIAS[diaIdx]} ${d.getDate()} de ${MESES[d.getMonth()]} a las ${label}`;
+    document.getElementById('seleccion-texto').textContent = texto;
+    document.getElementById('seleccion-resumen').style.display = 'block';
+
+    // Disparamos la validación cruzada (Fecha seleccionada + Al menos un servicio activo)
+    window.validarFormularioListo();
+}
+</script>
+{% endblock %}
