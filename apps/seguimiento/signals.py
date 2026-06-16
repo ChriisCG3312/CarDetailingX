@@ -122,49 +122,6 @@ def notificar_cambio_seguimiento(sender, instance, created, **kwargs):
                     mensaje=f'Tu vehículo {instance.cita.vehiculo} ha sido entregado. '
                             f'¡Gracias por tu preferencia!',
                 )
-<<<<<<< HEAD
-=======
-            elif instance.estado == Seguimiento.Estado.EN_LAVADO:
-                Notificacion.objects.create(
-                    usuario=cliente,
-                    cita=instance.cita,
-                    tipo=Notificacion.Tipo.SERVICIO_INICIADO,
-                    mensaje=f'Tu vehículo {instance.cita.vehiculo} está en proceso '
-                            f'de lavado.',
-                )
-            elif instance.estado == Seguimiento.Estado.EN_PULIDO:
-                Notificacion.objects.create(
-                    usuario=cliente,
-                    cita=instance.cita,
-                    tipo=Notificacion.Tipo.SERVICIO_INICIADO,
-                    mensaje=f'Tu vehículo {instance.cita.vehiculo} está en proceso '
-                            f'de pulido y encerado.',
-                )
-            elif instance.estado == Seguimiento.Estado.EN_DETALLES:
-                Notificacion.objects.create(
-                    usuario=cliente,
-                    cita=instance.cita,
-                    tipo=Notificacion.Tipo.SERVICIO_INICIADO,
-                    mensaje=f'Tu vehículo {instance.cita.vehiculo} está en los '
-                            f'detalles finales. ¡Casi listo!',
-                )
-            elif instance.estado == Seguimiento.Estado.LISTO:
-                Notificacion.objects.create(
-                    usuario=cliente,
-                    cita=instance.cita,
-                    tipo=Notificacion.Tipo.SERVICIO_LISTO,
-                    mensaje=f'¡Tu vehículo {instance.cita.vehiculo} está listo! '
-                            f'Puedes pasar a recogerlo cuando gustes.',
-                )
-            elif instance.estado == Seguimiento.Estado.ENTREGADO:
-                Notificacion.objects.create(
-                    usuario=cliente,
-                    cita=instance.cita,
-                    tipo=Notificacion.Tipo.SERVICIO_INICIADO,
-                    mensaje=f'Tu vehículo {instance.cita.vehiculo} ha sido entregado. '
-                            f'¡Gracias por tu preferencia!',
-                )
->>>>>>> 6610610 (fix???)
 
     except Exception as e:
         import logging
