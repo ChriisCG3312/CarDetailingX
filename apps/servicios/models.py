@@ -73,6 +73,9 @@ class Paquete(models.Model):
             descuento = self.precio_base * (promo.descuento_pct / 100)
             return round(self.precio_base - descuento, 2)
         return self.precio_base
+    @property
+    def duracion_total(self):
+        return sum(servicio.duracion_horas for servicio in self.servicios.all())
 
 
 class Promocion(models.Model):

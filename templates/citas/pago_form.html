@@ -183,12 +183,20 @@ function recalcularTotal() {
   document.getElementById('monto_input').value = total.toFixed(2);
 }
 
+// ── CORRECCIÓN: escuchar cambios en el select oculto ──────────────────────
+selectCita.addEventListener('change', function () {
+  cargarCita(this.value);
+});
+
 // preseleccionar cita desde URL ?cita=pk
 const params = new URLSearchParams(window.location.search);
 const citaParam = params.get('cita');
 if (citaParam) {
   selectCita.value = citaParam;
   cargarCita(citaParam);
+} else if (selectCita.value) {
+  // si Django pre-seleccionó una opción (p.ej. al volver con errores), cargarla
+  cargarCita(selectCita.value);
 }
 </script>
 {% endblock %}
