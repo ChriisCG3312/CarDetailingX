@@ -33,7 +33,7 @@
             <th>#</th>
             {% if request.user.es_admin %}<th>Cliente</th>{% endif %}
             <th>Vehículo</th>
-            <th>Servicio</th>
+            <th>Paquete</th>
             <th>Fecha y hora</th>
             <th>Estado</th>
             <th></th>
@@ -47,7 +47,7 @@
               <td>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</td>
             {% endif %}
             <td>{{ cita.vehiculo }}</td>
-            <td>{{ cita.servicio }}</td>
+            <td>{{ cita.paquete }}</td>
             <td>{{ cita.fecha_hora|date:"d/m/Y H:i" }}</td>
             <td>
               {% if cita.estado == 'pendiente' %}

@@ -22,8 +22,8 @@
               <div class="fw-semibold">{{ object.cliente.get_full_name|default:object.cliente.username }}</div>
             </li>
             <li class="list-group-item px-0">
-              <span class="text-muted small">Servicio</span>
-              <div class="fw-semibold">{{ object.servicio }}</div>
+              <span class="text-muted small">Paquete</span>
+              <div class="fw-semibold">{{ object.paquete }}</div>
             </li>
             <li class="list-group-item px-0">
               <span class="text-muted small">Vehículo</span>
@@ -38,12 +38,8 @@
           <form method="post">
             {% csrf_token %}
             <div class="d-flex gap-2 justify-content-center">
-              <a href="{% url 'citas:lista' %}" class="btn btn-outline-secondary">
-                Volver
-              </a>
-              <button type="submit" class="btn btn-primary">
-                Sí, confirmar cita
-              </button>
+              <a href="{% url 'citas:lista' %}" class="btn btn-outline-secondary">Volver</a>
+              <button type="submit" class="btn btn-primary">Sí, confirmar cita</button>
             </div>
           </form>
 
