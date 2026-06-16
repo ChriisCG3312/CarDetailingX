@@ -33,7 +33,8 @@
       <tr>
         <th>Cliente</th>
         <th>Vehículo</th>
-        <th>Servicio</th>
+        <th>Paquete</th>
+        <th>Servicios incluidos</th>
         <th>Estado</th>
         <th>Técnico</th>
         <th>Última actualización</th>
@@ -45,14 +46,37 @@
       <tr>
         <td>{{ s.cita.cliente.get_full_name|default:s.cita.cliente.username }}</td>
         <td>{{ s.cita.vehiculo }}</td>
-        <td>{{ s.cita.servicio }}</td>
+        <td>
+          {% if s.cita.paquete %}
+            <span class="fw-semibold">{{ s.cita.paquete.nombre }}</span>
+            {% if s.cita.paquete.es_personalizado %}
+            <span class="badge-rol-tecnico ms-1" style="font-size:0.6rem;">Personalizado</span>
+            {% endif %}
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if s.cita.paquete %}
+            <div class="d-flex flex-wrap gap-1">
+              {% for servicio in s.cita.paquete.servicios.all %}
+              <span class="badge rounded-pill"
+                    style="background:var(--dp-papel-2);color:var(--dp-carbon);font-size:0.72rem;">
+                {{ servicio.nombre }}
+              </span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <span class="text-muted small">Sin servicios</span>
+          {% endif %}
+        </td>
         <td>
           {% if s.estado == 'recibido' %}
             <span class="badge rounded-pill bg-secondary">{{ s.get_estado_display }}</span>
           {% elif s.estado == 'en_lavado' or s.estado == 'en_pulido' or s.estado == 'en_detalles' %}
             <span class="badge rounded-pill" style="background:var(--dp-ambar);color:var(--dp-asfalto);">{{ s.get_estado_display }}</span>
           {% elif s.estado == 'listo' %}
-            <span class="badge rounded-pill" style="background:var(--dp-ceramico);">{{ s.get_estado_display }}</span>
+            <span class="badge rounded-pill" style="background:var(--dp-ceramico);color:#fff;">{{ s.get_estado_display }}</span>
           {% elif s.estado == 'entregado' %}
             <span class="badge rounded-pill bg-success">{{ s.get_estado_display }}</span>
           {% endif %}
