@@ -3,80 +3,55 @@
 
 {% block contenido %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
+  <div class="col-md-8">
+    <p class="dp-eyebrow">Seguimiento</p>
+    <h2 class="dp-title fs-4 mb-4">Actualizar estado del servicio</h2>
 
-        <div class="mb-4">
-            <div class="dp-eyebrow">Seguimiento</div>
-
-            <h1 class="dp-title">
-                Actualizar estado del servicio
-            </h1>
+    <!-- Info del vehículo -->
+    <div class="dp-card p-3 mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="notif-icon notif-icon-asfalto">
+          <i class="bi bi-car-front"></i>
         </div>
-
-        <!-- Resumen de la cita -->
-        <div class="dp-card p-4 mb-4">
-
-            <div class="d-flex align-items-start gap-3">
-
-                <div class="adm-action-success flex-shrink-0">
-                    <i class="bi bi-car-front"></i>
-                </div>
-
-                <div>
-
-                    <h5 class="mb-1 fw-semibold">
-                        {{ object.cita.vehiculo }}
-                    </h5>
-
-                    <p class="mb-1 text-muted small">
-                        <strong>Cliente:</strong>
-                        {{ object.cita.cliente.get_full_name|default:object.cita.cliente.username }}
-                    </p>
-
-                    <p class="mb-1 text-muted small">
-                        <strong>Servicio:</strong>
-                        {{ object.cita.servicio }}
-                    </p>
-
-                    <p class="mb-0"
-                       style="
-                           color: #9A948A;
-                           font-family: var(--font-mono);
-                           font-size: 0.82rem;
-                       ">
-                        <strong>Fecha:</strong>
-                        {{ object.cita.fecha_hora|date:"d/m/Y H:i" }}
-                    </p>
-
-                </div>
-
-            </div>
-
+        <div>
+          <div class="fw-semibold">{{ object.cita.vehiculo }}</div>
+          <div class="text-muted small">
+            Cliente: {{ object.cita.cliente.get_full_name|default:object.cita.cliente.username }}
+            &nbsp;·&nbsp; Servicio: {{ object.cita.servicio }}
+            &nbsp;·&nbsp; {{ object.cita.fecha_hora|date:"d/m/Y H:i" }}
+          </div>
         </div>
-
-        <div class="dp-card p-4">
-
-            <div class="mb-4">
-
-                <div class="dp-section-label">
-                    Actualización
-                </div>
-
-                <h5 class="mb-0 fw-semibold">
-                    Registra el progreso del servicio
-                </h5>
-
-            </div>
-
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                {% include "partials/_form_card.html" with cancel_url="seguimiento:lista" %}
-
-            </form>
-
-        </div>
-
+      </div>
     </div>
+
+    <div class="dp-card p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">{{ field.label }}
+            {% if field.field.required %}<span class="text-danger ms-1">*</span>{% endif %}
+          </label>
+          {{ field }}
+          {% if field.errors %}
+            {% for error in field.errors %}
+            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn-pill-primary">
+            <i class="bi bi-check-lg me-2"></i>Guardar cambios
+          </button>
+          <a href="{% url 'seguimiento:lista' %}" class="btn-pill-ghost">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
 </div>
 {% endblock %}
