@@ -16,6 +16,21 @@ from .models import Cita, Vehiculo, Pago
 from .forms import CitaForm, VehiculoForm, PagoForm
 from apps.usuarios.mixins import AdminRequiredMixin, ClienteRequiredMixin
 
+from django.views.generic import CreateView
+from datetime import date
+
+# Asegúrate de importar tus modelos y formularios correspondientes
+from apps.citas.models import Cita
+from apps.citas.forms import CitaForm  # O como se llame tu formulario de citas
+from apps.servicios.forms import PaquetePersonalizadoForm
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.contrib import messages
+
+from apps.servicios.models import Servicio  # Importamos el modelo de Servicio para calcular costos
+
 
 # ── Vehículos ─────────────────────────────────────────────────────────────────
 
@@ -354,3 +369,47 @@ class PrecioCitaView(LoginRequiredMixin, View):
             'precio_final': precio_final,
             'promo': promo_nombre,
         })
+
+class CitaPaquetePersonalizadoCreateView(LoginRequiredMixin, CreateView):
+    model = Cita
+    form_class = CitaForm
+    template_name = 'citas/paquete_personalizado_cita.html'
+    success_url = reverse_lazy('citas:lista')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['paquete'].required = False  # ← esta línea es el fix
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_servicios'] = PaquetePersonalizadoForm(self.request.POST or None)
+        context['form_cita'] = context['form']
+        context['hoy'] = date.today().isoformat()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_cita = self.get_form()
+        form_servicios = PaquetePersonalizadoForm(request.POST)
+
+        if form_cita.is_valid() and form_servicios.is_valid():
+            cita = form_cita.save(commit=False)
+            cita.cliente = request.user
+            cita.paquete = None
+
+            servicios_seleccionados = form_servicios.cleaned_data['servicios']
+            total_calculado = sum(servicio.precio for servicio in servicios_seleccionados)
+            cita.precio_total = total_calculado
+            cita.save()
+
+            if hasattr(cita, 'servicios'):
+                cita.servicios.set(servicios_seleccionados)
+
+            messages.success(request, f"¡Cita agendada con éxito! Tu combo personalizado incluye {servicios_seleccionados.count()} servicios por un total de ${total_calculado} MXN.")
+            return redirect(self.success_url)
+
+        messages.error(request, "Por favor, revisa que hayas seleccionado al menos un servicio y un horario disponible.")
+        return self.render_to_response(
+            self.get_context_data(form=form_cita, form_servicios=form_servicios)
+        )
