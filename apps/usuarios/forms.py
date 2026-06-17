@@ -106,6 +106,14 @@ class RegistroUsuarioForm(UserCreationForm):
             )
 
         return username
+    def clean_telefono(self):
+        telefono = self.cleaned_data['telefono']
+        telefono = ''.join(filter(str.isdigit, telefono))
+        if len(telefono) != 10:
+            raise forms.ValidationError(
+                'El teléfono debe contener exactamente 10 dígitos.'
+            )
+        return telefono
 
     def clean_email(self):
         email = self.cleaned_data["email"]
@@ -141,9 +149,25 @@ class RegistroUsuarioForm(UserCreationForm):
                     "password1",
                     "La contraseña no puede ser igual al nombre de usuario"
                 )
-
         return cleaned_data
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
+        self.fields['first_name'].error_messages = {
+            'required': 'Debes ingresar tu nombre.'
+        }
+
+        self.fields['last_name'].error_messages = {
+            'required': 'Debes ingresar tu apellido.'
+        }
     
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'form-control'
+            })
 
     def save(self, commit=True):
         usuario = super().save(commit=False)

@@ -7,11 +7,17 @@
     <p class="dp-eyebrow mb-0">Panel de trabajo</p>
     <h2 class="dp-title fs-4">Seguimientos activos</h2>
   </div>
-  {% if user.es_admin %}
-  <a href="{% url 'seguimiento:crear' %}" class="btn-pill-primary">
-    <i class="bi bi-plus-lg me-2"></i>Asignar técnico
-  </a>
-  {% endif %}
+  <div class="d-flex gap-2 justify-content-end mt-5">
+    <a href="{% url 'citas:lista' %}" class="btn btn-secondary">
+      <i class="bi bi-arrow-left me-1"></i> Regresar a citas
+    </a>
+    {% if user.es_admin %}
+    <a href="{% url 'seguimiento:crear' %}" class="btn-pill-primary">
+      <i class="bi bi-plus-lg me-2"></i>Asignar técnico
+    </a>
+    {% endif %}
+  </div>
+  
 </div>
 
 <div class="mb-3">

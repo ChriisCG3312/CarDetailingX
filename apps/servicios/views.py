@@ -157,7 +157,7 @@ class PaqueteCreateView(AdminRequiredMixin, CreateView):
             Promocion.objects.create(
                 nombre=f"Descuento {self.object.nombre}",
                 paquete=self.object,
-                descripcion=f"Descuento automático de apertura aplicado al paquete {self.object.nombre}",
+                descripcion=f"Descuento aplicado al paquete {self.object.nombre}",
                 descuento_pct=descuento,
                 fecha_inicio=datetime.now().date(),
                 fecha_fin=datetime.now().date().replace(year=datetime.now().year + 1), # Vigencia por defecto de 1 año

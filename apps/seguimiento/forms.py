@@ -65,7 +65,7 @@ class SeguimientoActualizarForm(forms.ModelForm):
             if estado_actual == Seguimiento.Estado.EN_ESPERA and not cita_disponible:
                 # Aún no llega la fecha — solo puede quedarse en espera
                 estados_validos = [
-                    (Seguimiento.Estado.EN_ESPERA, 'En espera'),
+                    (Seguimiento.Estado.EN_ESPERA, 'En espera del vehículo'),
                 ]
             else:
                 # Ya llegó la fecha o ya avanzó — mostrar estados hacia adelante

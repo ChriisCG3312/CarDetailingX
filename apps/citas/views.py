@@ -387,12 +387,15 @@ class CitaPaquetePersonalizadoCreateView(LoginRequiredMixin, CreateView):
         context['form_cita'] = context['form']
         context['hoy'] = date.today().isoformat()
         return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['usuario'] = self.request.user
+        return kwargs
 
     def post(self, request, *args, **kwargs):
         self.object = None
         form_cita = self.get_form()
         form_servicios = PaquetePersonalizadoForm(request.POST)
-
         if form_cita.is_valid() and form_servicios.is_valid():
             cita = form_cita.save(commit=False)
             cita.cliente = request.user
@@ -409,7 +412,7 @@ class CitaPaquetePersonalizadoCreateView(LoginRequiredMixin, CreateView):
             messages.success(request, f"¡Cita agendada con éxito! Tu combo personalizado incluye {servicios_seleccionados.count()} servicios por un total de ${total_calculado} MXN.")
             return redirect(self.success_url)
 
-        messages.error(request, "Por favor, revisa que hayas seleccionado al menos un servicio y un horario disponible.")
+        messages.error(request, "No fue posible agendar la cita. Revisa los errores marcados en el formulario.")
         return self.render_to_response(
             self.get_context_data(form=form_cita, form_servicios=form_servicios)
         )

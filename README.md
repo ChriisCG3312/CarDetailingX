@@ -1,6 +1,6 @@
 # CarDetailingX
 =======
-# Detailing Pro — Sistema de Gestión
+# CarDetailingX — Sistema de Gestión
 
 Aplicación web Django + PostgreSQL para la gestión de un taller de detailing automotriz.
 
