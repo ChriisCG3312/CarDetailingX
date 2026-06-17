@@ -66,7 +66,7 @@ class CitaForm(forms.ModelForm):
         if usuario and not usuario.es_admin:
             self.fields['vehiculo'].queryset = Vehiculo.objects.filter(cliente=usuario)
         # solo paquetes activos
-        self.fields['paquete'].queryset = Paquete.objects.filter(activo=True)
+        self.fields['paquete'].queryset = Paquete.objects.filter(activo=True, es_personalizado=False)
 
     def clean_fecha_hora(self):
         fecha_hora = self.cleaned_data.get('fecha_hora')

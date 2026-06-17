@@ -36,7 +36,9 @@
             <th>Paquete</th>
             <th>Fecha y hora</th>
             <th>Estado</th>
-            <th></th>
+            <!-- NUEVA COLUMNA: Seguimiento -->
+            <th>Seguimiento</th>
+            <th></th> <!-- Columna de acciones -->
           </tr>
         </thead>
         <tbody>
@@ -62,6 +64,18 @@
                 <span class="badge text-bg-danger">Cancelada</span>
               {% endif %}
             </td>
+            <!-- NUEVA CELDA: Seguimiento -->
+            <td>
+              {% if cita.seguimiento %}
+                <a href="{% url 'seguimiento:detalle_cliente' cita.seguimiento.pk %}"
+                   class="adm-action" title="Ver estado del servicio">
+                  <i class="bi bi-eye"></i>
+                </a>
+              {% else %}
+                <span class="text-muted small">—</span>
+              {% endif %}
+            </td>
+            <!-- Columna de acciones (botones) -->
             <td class="text-end">
               <div class="d-flex justify-content-end gap-1">
 
