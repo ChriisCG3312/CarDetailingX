@@ -33,6 +33,14 @@ class SeguimientoCrearView(AdminRequiredMixin, CreateView):
     template_name = 'seguimiento/seguimiento_form.html'
     success_url = reverse_lazy('seguimiento:lista')
 
+    def get_initial(self):
+        """Preselecciona la cita si llega como ?cita=<pk> en la URL."""
+        initial = super().get_initial()
+        cita_id = self.request.GET.get('cita')
+        if cita_id:
+            initial['cita'] = cita_id
+        return initial
+
     def form_valid(self, form):
         seguimiento = form.save()
         cita = seguimiento.cita
