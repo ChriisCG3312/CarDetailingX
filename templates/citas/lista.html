@@ -49,7 +49,15 @@
               <td>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</td>
             {% endif %}
             <td>{{ cita.vehiculo }}</td>
-            <td>{{ cita.paquete }}</td>
+            <td>
+              {% if not cita.paquete %}
+                Paquete personalizado
+              {% elif cita.paquete.es_personalizado %}
+                Paquete personalizado
+              {% else %}
+                {{ cita.paquete }}
+              {% endif %}
+            </td>
             <td>{{ cita.fecha_hora|date:"d/m/Y H:i" }}</td>
             <td>
               {% if cita.estado == 'pendiente' %}
@@ -158,7 +166,7 @@
         {% if estado_activo %}No hay citas con ese estado.
         {% else %}No tienes citas registradas todavía.{% endif %}
       </p>
-      <a href="{% url 'citas:crear' %}" class="btn btn-primary mt-1">
+      <a href="{% url 'servicios:catalogo' %}" class="btn btn-primary mt-1">
         Agendar una cita
       </a>
     </div>
