@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}Diseñar mi paquete y agendar{% endblock %}
 
+
 {% block contenido %}
 <div class="container py-5">
     <div class="mb-4">
@@ -11,8 +12,8 @@
 
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            
-            <div class="dp-eyebrow">Mi Auto</div>
+
+            <p class="dp-eyebrow">Mi Auto</p>
             <h1 class="dp-title mb-3">Diseñar mi paquete y agendar</h1>
             <p class="text-muted mb-5">
                 Elige libremente los servicios individuales que deseas para tu vehículo haciendo clic directo sobre los cuadros y agenda tu cita en un solo paso.
@@ -25,7 +26,7 @@
                     <label class="form-label fw-bold text-dark fs-5 mb-3">
                         1. Selecciona los servicios individuales que deseas incluir:
                     </label>
-                    
+
                     <div class="row row-cols-1 row-cols-md-3 g-3" id="clientServicesGrid">
                         {% for id, label in form_servicios.fields.servicios.choices %}
                         <div class="col">
@@ -42,6 +43,10 @@
                                 <span class="badge-rol badge-rol-cliente mt-2">Disponible</span>
                             </div>
                         </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-muted small mb-0">No hay servicios disponibles para armar un paquete en este momento.</p>
+                        </div>
                         {% endfor %}
                     </div>
 
@@ -52,7 +57,6 @@
                         Debes seleccionar al menos un servicio para armar tu paquete.
                     </div>
                 </div>
-
 
                 <div class="dp-card p-4 p-md-5">
                     <label class="form-label fw-bold text-dark fs-5 mb-4">
@@ -91,7 +95,7 @@
                         <input type="hidden" name="fecha_hora" id="fecha_hora_input" value="{{ form_cita.fecha_hora.value|default:'' }}">
 
                         <div id="seleccion-resumen" class="col-12" style="display:none">
-                            <div class="alert alert-success py-3 mb-0 border-0 shadow-sm d-flex align-items-center" style="background-color: #E3F0EA; color: var(--dp-ceramico); border-radius: 10px;">
+                            <div class="py-3 mb-0 border-0 shadow-sm d-flex align-items-center" style="background-color: #E3F0EA; color: var(--dp-ceramico); border-radius: 10px;">
                                 <i class="bi bi-calendar-check-fill fs-5 me-2"></i>
                                 <strong id="seleccion-texto"></strong>
                             </div>
@@ -140,14 +144,12 @@
 </div>
 
 <style>
-    /* Estilos estéticos de las tarjetas del Catálogo */
     .client-service-card.selected {
         border-color: var(--dp-ceramico) !important;
         background-color: rgba(47, 111, 94, 0.03) !important;
         box-shadow: 0 5px 18px rgba(47, 111, 94, 0.1) !important;
         transform: translateY(-3px);
     }
-    /* Estilización del layout inyectado para los botones de horas del script de slots */
     #slots-grid .btn {
         border-radius: 8px;
         font-family: var(--font-mono);
@@ -159,59 +161,65 @@
 
 {% block extra_js %}
 <script>
-// VARIABLES ORIGINALES DEL BACKEND DE CITAS
+/* ════════════════════════════════════════════════════════════════════════
+   SCRIPT ÚNICO — paquete personalizado
+   Todo en un solo bloque, dentro de extra_js, para evitar problemas de
+   orden de ejecución entre múltiples <script> separados.
+   ════════════════════════════════════════════════════════════════════════ */
+
 const API_URL = "{% url 'citas:api_horarios' %}";
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const DIAS = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Lógica 1: Controladores interactivos de las tarjetas de servicios
-    const nativeSelect = document.querySelector("select[name='servicios']");
-    const clientCards = document.querySelectorAll(".client-service-card");
-    const errorServicios = document.getElementById("error-servicios");
+// ── Validación cruzada: habilita el botón solo si hay fecha+hora Y al menos un servicio ──
+function validarFormularioListo() {
+    const fechaHoraInput = document.getElementById('fecha_hora_input');
+    const btnSubmit = document.getElementById('btn-submit');
+    const errorServicios = document.getElementById('error-servicios');
 
-    if (nativeSelect && clientCards.length > 0) {
-        clientCards.forEach(card => {
-            card.addEventListener("click", function() {
-                const val = card.getAttribute("data-value");
+    if (!fechaHoraInput || !btnSubmit) {
+        console.warn('validarFormularioListo: faltan elementos esperados en el DOM.');
+        return;
+    }
+
+    const fechaHora = fechaHoraInput.value;
+    const serviciosSeleccionados = document.querySelectorAll('.client-service-card.selected').length;
+
+    if (errorServicios) {
+        errorServicios.classList.toggle('d-none', serviciosSeleccionados > 0);
+    }
+
+    btnSubmit.disabled = !(fechaHora && serviciosSeleccionados > 0);
+}
+
+// ── Tarjetas de servicio clicables ──
+function inicializarTarjetasServicio() {
+    const nativeSelect = document.querySelector("select[name='servicios']");
+    const clientCards = document.querySelectorAll('.client-service-card');
+
+    clientCards.forEach(card => {
+        card.addEventListener('click', function () {
+            const val = card.getAttribute('data-value');
+            const isSelected = card.classList.toggle('selected');
+
+            const indicator = card.querySelector('.check-indicator');
+            if (indicator) {
+                indicator.classList.toggle('d-none', !isSelected);
+            }
+
+            if (nativeSelect) {
                 const option = nativeSelect.querySelector(`option[value="${val}"]`);
-                
-                const isSelected = card.classList.toggle("selected");
-                card.querySelector(".check-indicator").classList.toggle("d-none", !isSelected);
-                
                 if (option) {
                     option.selected = isSelected;
-                    nativeSelect.dispatchEvent(new Event('change'));
                 }
-                validarFormularioListo();
-            });
+            }
+
+            validarFormularioListo();
         });
-    }
+    });
+}
 
-    // Validar si el botón de guardar debe habilitarse o quedarse bloqueado
-    function validarFormularioListo() {
-        const fechaHora = document.getElementById('fecha_hora_input').value;
-        const serviciosSeleccionados = Array.from(nativeSelect.options).some(o => o.selected);
-        const btnSubmit = document.getElementById('btn-submit');
-
-        if (serviciosSeleccionados) {
-            errorServicios.classList.add("d-none");
-        } else {
-            errorServicios.classList.remove("d-none");
-        }
-
-        if (fechaHora && serviciosSeleccionados) {
-            btnSubmit.disabled = false;
-        } else {
-            btnSubmit.disabled = true;
-        }
-    }
-
-    // Vinculamos la validación global a la función interna del script original
-    window.validarFormularioListo = validarFormularioListo;
-});
-
-// LÓGICA 2: LLAMADAS ASÍNCRONAS ORIGINALES DE LA CITA (ADAPTADAS)
+// ── Carga de horarios disponibles para la fecha elegida ──
 async function cargarSlots() {
     const fechaInput = document.getElementById('id-fecha');
     const fecha = fechaInput.value;
@@ -219,13 +227,21 @@ async function cargarSlots() {
     const placeholder = document.getElementById('slots-placeholder');
     const loading = document.getElementById('slots-loading');
     const errorFecha = document.getElementById('error-fecha');
+    const fechaHoraInput = document.getElementById('fecha_hora_input');
+    const btnSubmit = document.getElementById('btn-submit');
+    const resumen = document.getElementById('seleccion-resumen');
+
+    if (!slotsGrid || !placeholder || !loading || !errorFecha || !fechaHoraInput || !btnSubmit || !resumen) {
+        console.warn('cargarSlots: faltan elementos esperados en el DOM.');
+        return;
+    }
 
     slotsGrid.innerHTML = '';
     placeholder.style.display = 'none';
     errorFecha.style.display = 'none';
-    document.getElementById('fecha_hora_input').value = '';
-    document.getElementById('btn-submit').disabled = true;
-    document.getElementById('seleccion-resumen').style.display = 'none';
+    fechaHoraInput.value = '';
+    btnSubmit.disabled = true;
+    resumen.style.display = 'none';
 
     if (!fecha) return;
 
@@ -259,12 +275,14 @@ async function cargarSlots() {
             slotsGrid.appendChild(btn);
         });
 
-    } catch(e) {
+    } catch (e) {
         loading.style.display = 'none';
         slotsGrid.innerHTML = '<span class="text-danger small">Error al conectar con el servidor de horarios.</span>';
+        console.error('cargarSlots:', e);
     }
 }
 
+// ── Selección de horario ──
 function seleccionarHora(fecha, hora, label, btnEl) {
     document.querySelectorAll('#slots-grid button').forEach(b => {
         b.classList.remove('btn-success');
@@ -273,17 +291,33 @@ function seleccionarHora(fecha, hora, label, btnEl) {
     btnEl.classList.remove('btn-outline-success');
     btnEl.classList.add('btn-success');
 
-    const valor = `${fecha} ${String(hora).padStart(2,'0')}:00`;
-    document.getElementById('fecha_hora_input').value = valor;
+    const valor = `${fecha} ${String(hora).padStart(2, '0')}:00`;
+
+    const fechaHoraInput = document.getElementById('fecha_hora_input');
+    const seleccionTexto = document.getElementById('seleccion-texto');
+    const resumen = document.getElementById('seleccion-resumen');
+
+    if (!fechaHoraInput || !seleccionTexto || !resumen) {
+        console.error('seleccionarHora: no se encontraron los elementos #fecha_hora_input, #seleccion-texto o #seleccion-resumen en el DOM.');
+        return;
+    }
+
+    fechaHoraInput.value = valor;
 
     const d = new Date(fecha + 'T12:00:00');
     const diaIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
     const texto = `Cita lista para el ${DIAS[diaIdx]} ${d.getDate()} de ${MESES[d.getMonth()]} a las ${label}`;
-    document.getElementById('seleccion-texto').textContent = texto;
-    document.getElementById('seleccion-resumen').style.display = 'block';
 
-    // Disparamos la validación cruzada (Fecha seleccionada + Al menos un servicio activo)
-    window.validarFormularioListo();
+    seleccionTexto.textContent = texto;
+    resumen.style.display = 'block';
+
+    validarFormularioListo();
 }
+
+// ── Inicialización al cargar el DOM ──
+document.addEventListener('DOMContentLoaded', function () {
+    inicializarTarjetasServicio();
+    validarFormularioListo();
+});
 </script>
 {% endblock %}

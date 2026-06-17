@@ -24,6 +24,13 @@ from apps.citas.models import Cita
 from apps.citas.forms import CitaForm  # O como se llame tu formulario de citas
 from apps.servicios.forms import PaquetePersonalizadoForm
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.contrib import messages
+
+from apps.servicios.models import Servicio  # Importamos el modelo de Servicio para calcular costos
+
 
 # ── Vehículos ─────────────────────────────────────────────────────────────────
 
@@ -369,40 +376,40 @@ class CitaPaquetePersonalizadoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'citas/paquete_personalizado_cita.html'
     success_url = reverse_lazy('citas:lista')
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['paquete'].required = False  # ← esta línea es el fix
+        return form
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Inyectamos el formulario de servicios para que pinte las tarjetas dinámicas
         context['form_servicios'] = PaquetePersonalizadoForm(self.request.POST or None)
-        # Pasamos el formulario de la cita mapeado con otro nombre para el HTML
         context['form_cita'] = context['form']
         context['hoy'] = date.today().isoformat()
         return context
 
-    def post(self, request, *path, **kwargs):
+    def post(self, request, *args, **kwargs):
         self.object = None
         form_cita = self.get_form()
         form_servicios = PaquetePersonalizadoForm(request.POST)
 
-        # Validamos que ambos formularios sean correctos
         if form_cita.is_valid() and form_servicios.is_valid():
-            # 1. Guardamos la cita en memoria sin comprometer la BD todavía
             cita = form_cita.save(commit=False)
             cita.cliente = request.user
-            
-            # NOTA: Aquí puedes meter la lógica para calcular el precio total 
-            # sumando los servicios elegidos en form_servicios.cleaned_data['servicios']
-            
+            cita.paquete = None
+
+            servicios_seleccionados = form_servicios.cleaned_data['servicios']
+            total_calculado = sum(servicio.precio for servicio in servicios_seleccionados)
+            cita.precio_total = total_calculado
             cita.save()
 
-            # 2. Si tu modelo Cita tiene una relación ManyToMany directa con Servicios,
-            # aquí asociamos los servicios seleccionados en las tarjetas:
-            servicios = form_servicios.cleaned_data['servicios']
-            # cita.servicios.set(servicios) 
+            if hasattr(cita, 'servicios'):
+                cita.servicios.set(servicios_seleccionados)
 
-            messages.success(request, "¡Tu cita con paquete personalizado ha sido agendada con éxito!")
+            messages.success(request, f"¡Cita agendada con éxito! Tu combo personalizado incluye {servicios_seleccionados.count()} servicios por un total de ${total_calculado} MXN.")
             return redirect(self.success_url)
-        
-        # Si algo falla, volvemos a pintar la pantalla con los errores
+
+        messages.error(request, "Por favor, revisa que hayas seleccionado al menos un servicio y un horario disponible.")
         return self.render_to_response(
             self.get_context_data(form=form_cita, form_servicios=form_servicios)
         )
