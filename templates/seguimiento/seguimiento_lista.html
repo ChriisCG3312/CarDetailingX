@@ -77,14 +77,16 @@
           {% endif %}
         </td>
         <td>
-          {% if s.estado == 'recibido' %}
-            <span class="badge rounded-pill bg-secondary">{{ s.get_estado_display }}</span>
-          {% elif s.estado == 'en_lavado' or s.estado == 'en_pulido' or s.estado == 'en_detalles' %}
-            <span class="badge rounded-pill" style="background:var(--dp-ambar);color:var(--dp-asfalto);">{{ s.get_estado_display }}</span>
+          {% if s.estado == 'en_espera' %}
+             <span class="badge rounded-pill" style="background:#FBEFDC;color:var(--dp-ambar);">{{ s.get_estado_display }}</span>
+          {% elif s.estado == 'recibido' %}
+             <span class="badge rounded-pill bg-secondary">{{ s.get_estado_display }}</span>
+          {% elif s.estado == 'en_detalles' %}
+             <span class="badge rounded-pill" style="background:var(--dp-ambar);color:var(--dp-asfalto);">{{ s.get_estado_display }}</span>
           {% elif s.estado == 'listo' %}
-            <span class="badge rounded-pill" style="background:var(--dp-ceramico);color:#fff;">{{ s.get_estado_display }}</span>
+             <span class="badge rounded-pill" style="background:var(--dp-ceramico);color:#fff;">{{ s.get_estado_display }}</span>
           {% elif s.estado == 'entregado' %}
-            <span class="badge rounded-pill bg-success">{{ s.get_estado_display }}</span>
+             <span class="badge rounded-pill bg-success">{{ s.get_estado_display }}</span>
           {% endif %}
         </td>
         <td>{{ s.tecnico.get_full_name|default:s.tecnico.username }}</td>
