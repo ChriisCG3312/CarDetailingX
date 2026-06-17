@@ -66,7 +66,7 @@ class CitaForm(forms.ModelForm):
         if usuario and not usuario.es_admin:
             self.fields['vehiculo'].queryset = Vehiculo.objects.filter(cliente=usuario)
         # solo paquetes activos
-        self.fields['paquete'].queryset = Paquete.objects.filter(activo=True, es_personalizado=False)
+        self.fields['paquete'].queryset = Paquete.objects.filter(activo=True)
 
     def clean_fecha_hora(self):
         fecha_hora = self.cleaned_data.get('fecha_hora')
@@ -96,18 +96,24 @@ class CitaForm(forms.ModelForm):
         paquete = cleaned.get('paquete')
         vehiculo = cleaned.get('vehiculo')
 
-        # validar que el vehículo no tenga ya una cita en proceso
+        # validar que el vehículo no tenga ya una cita activa
+        # (pendiente, confirmada o en proceso)
         if vehiculo:
-            en_proceso = Cita.objects.filter(
+            estados_bloqueantes = [
+                Cita.Estado.PENDIENTE,
+                Cita.Estado.CONFIRMADA,
+                Cita.Estado.EN_PROCESO,
+            ]
+            cita_activa = Cita.objects.filter(
                 vehiculo=vehiculo,
-                estado=Cita.Estado.EN_PROCESO
+                estado__in=estados_bloqueantes
             )
             if self.instance.pk:
-                en_proceso = en_proceso.exclude(pk=self.instance.pk)
-            if en_proceso.exists():
+                cita_activa = cita_activa.exclude(pk=self.instance.pk)
+            if cita_activa.exists():
                 raise forms.ValidationError(
-                    'Este vehículo ya tiene una cita en proceso. '
-                    'Espera a que termine antes de agendar otra.'
+                    'Este vehículo ya tiene una cita activa (pendiente, confirmada o en proceso). '
+                    'Espera a que termine o cancélala antes de agendar otra.'
                 )
 
         if not fecha_hora or not paquete:
