@@ -1,23 +1,48 @@
-# CarDetailingX
-=======
-# CarDetailingX — Sistema de Gestión
+# CarDetailingX — Sistema de Gestión para Taller de Detailing Automotriz
 
-Aplicación web Django + PostgreSQL para la gestión de un taller de detailing automotriz.
+Aplicación web desarrollada con **Python 3.12.x**, **Django 5.0.6** y **PostgreSQL**, diseñada para la administración integral de un taller de detailing automotriz.
+
+El sistema permite gestionar:
+
+* Usuarios y roles
+* Servicios y promociones
+* Vehículos
+* Citas
+* Reportes
+* Pagos
+* Seguimiento de servicios
+* Notificaciones
+* Panel administrativo
 
 ---
 
-## Estructura del proyecto
+# Tecnologías utilizadas
 
-```
+| Tecnología | Versión |
+| ---------- | ------- |
+| Python     | 3.12.x  |
+| Django     | 5.0.6   |
+| PostgreSQL | 15+     |
+| HTML5      | Última  |
+| CSS3       | Última  |
+| Bootstrap  | 5.x     |
+| JavaScript | ES6+    |
+
+---
+
+# Estructura del proyecto
+
+```text
 detailing_project/
 ├── apps/
-│   ├── usuarios/       # D1 — Auth, CustomUser, Clientes
-│   ├── servicios/      # D2 — Catálogo, Promociones
-│   ├── citas/          # D3 — Vehículos, Agenda, Pagos
-│   └── seguimiento/    # D4 — Tracking, Notificaciones
-├── config/             # settings.py, urls.py, wsgi.py
-├── static/             # CSS, JS, imágenes globales
-├── templates/          # base.html, dashboard, partials
+│   ├── usuarios/
+│   ├── servicios/
+│   ├── citas/
+│   ├── repotes/
+│   └── seguimiento/
+├── config/
+├── static/
+├── templates/
 ├── manage.py
 ├── requirements.txt
 └── .env.example
@@ -25,122 +50,206 @@ detailing_project/
 
 ---
 
-## Setup inicial (todos los integrantes)
+# Instalación del proyecto
 
-### 1. Clonar el repositorio
+## Opción 1: Crear un Fork (Recomendado para estudiantes)
 
-Dentro de la carpeta que usarás para el proyecto:
+Si deseas modificar o mejorar el proyecto sin afectar el repositorio original:
+
+### 1. Realiza un Fork
+
+En GitHub:
+
+1. Abre el repositorio original. " https://github.com/ChriisCG3312/CarDetailingX.git "
+2. Haz clic en **Fork**.
+3. Selecciona tu cuenta.
+4. Espera a que GitHub cree tu copia.
+
+---
+
+### 2. Clona tu Fork
 
 ```bash
-cd ruta/tu_carpeta
-git init
-git clone https://github.com/ChriisCG3312/CarDetailingX.git
+git clone https://github.com/TU_USUARIO/CarDetailingX.git
+git remote add origin https://github.com/TU_USUARIO/CarDetailingX.git
+cd CarDetailingX
 ```
 
-### Iniciar tu rama de trabajo
+---
+
+# Configuración del entorno
+
+## 1. Crear entorno virtual
+
+### Windows
 
 ```bash
-git checkout -b develop
-git remote add origin https://github.com/ChriisCG3312/CarDetailingX.git
-git pull origin develop
-git checkout -b feature/tu-modulo
-```
-
-Tus archivos deberían de haber cambiado, sino, informa al dueño del repositorio.
-
-### 2. Crear y activar entorno virtual
-
-```bash
-# Windows
 python -m venv env
-.\env\Scripts\activate
+
+env\Scripts\activate
 ```
 
-### 3. Instalar dependencias
+### Linux / macOS
 
 ```bash
-# Asegúrate de tener Python 3.12
+python3 -m venv env
+
+source env/bin/activate
+```
+
+---
+
+## 2. Instalar dependencias
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configurar variables de entorno
+---
+
+## 3. Configurar variables de entorno
+
+Crear el archivo `.env` utilizando como base `.env.example`.
+
+### Windows
 
 ```bash
-# COPIA LA ESTRUCTURA DE .example y EDITA .env
 copy .env.example .env
-# edita con tu DB_NAME, DB_USER, DB_PASSWORD
-
 ```
 
-### 5. Crear la base de datos en PostgreSQL
+### Linux / macOS
+
+```bash
+cp .env.example .env
+```
+
+Editar los valores correspondientes:
+
+```env
+DB_NAME=CarDetailingX
+DB_USER=postgres
+DB_PASSWORD=tu_password
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+---
+
+# Configuración de PostgreSQL
+
+## Crear la base de datos
 
 ```sql
 CREATE DATABASE CarDetailingX;
 ```
 
-### 6. Aplicar migraciones
+---
+
+# Despliegue local
+
+## Aplicar migraciones
 
 ```bash
 python manage.py makemigrations
+
 python manage.py migrate
 ```
 
-### 7. Crear superusuario (Admin)
+---
+
+## Crear usuario administrador
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 8. Correr el servidor
+---
+
+## Ejecutar servidor de desarrollo
 
 ```bash
 python manage.py runserver
 ```
 
-Accede en: http://127.0.0.1:8000/
+Abrir en el navegador:
 
----
-
-### Convención de commits
-
+```text
+http://127.0.0.1:8000/
 ```
-feature/(modulo): descripción breve
-fix/(modulo): corrección
-docs/(readme): actualización
-refactor/(views): mejora de código
-test/(modulo): prueba unitaria
+
+---
+
+# Acceso al panel administrativo
+
+```text
+http://127.0.0.1:8000/admin/
 ```
-### Guardar de forma local los cambios
-1. Agrega todos tus cambios: `git add .`
-2. Comprueba tus archivos con `git status`
-2. Haz commit local. Recuerda mantener la convención de commits: `git commit -m "(tu mensaje)` 
 
-### Subir a GitHub
-1. Asegúrate de estar en la rama correspondiente
-2. Haz commit de tus cambios
-3. Haz push a tu rama en github: `git push origin feature/(tu-modulo)`
-
-### Crear Pull Request a Develop
-
-1. Sube los cambios a tu rama: `git push origin feature/tu-modulo`
-2. Abre PR hacia `develop` EN GITHUB
-3. Añade descripción + instrucciones para probar
-4. Mínimo 1 revisión aprobada antes de mergear
+Todos los modelos del sistema se encuentran registrados en el panel de administración de Django.
 
 ---
 
-## Módulos y responsables
+# Flujo de trabajo recomendado con Git
 
-| App | Responsable | Modelos principales |
-|-----|-------------|---------------------|
-| `usuarios` | Christian | `Usuario` (CustomUser) |
-| `servicios` | Manuel | `Servicio`, `Promocion` |
-| `citas` | Carlos | `Vehiculo`, `Cita`, `Pago` |
-| `seguimiento` | Brayan | `Seguimiento`, `Notificacion` |
+## Crear una nueva rama
+
+```bash
+git checkout -b nueva-funcionalidad
+```
 
 ---
 
-## Partial de formulario reutilizable
+## Guardar cambios localmente
+
+```bash
+git add .
+
+git commit -m "descripcion breve"
+```
+
+---
+
+## Subir cambios
+
+```bash
+git push origin nueva-funcionalidad
+```
+
+
+## Si necesitas cambiar de rama sin crear una nueva
+
+```bash
+git checkout tu-rama-destino
+```
+
+
+---
+
+# Convención de commits
+
+```text
+feature(modulo): nueva funcionalidad
+fix(modulo): corrección de errores
+docs(readme): actualización de documentación
+refactor(modulo): mejora interna del código
+test(modulo): pruebas
+```
+
+---
+
+# Módulos del sistema
+
+| Aplicación  | Función                                    |
+| ----------- | ------------------------------------------ |
+| usuarios    | Gestión de usuarios y roles                |
+| servicios   | Gestión de servicios y promociones         |
+| citas       | Administración de vehículos, citas y pagos |
+| seguimiento | Seguimiento de servicios y notificaciones  |
+| reportes    | Visualización y exportación de datos relev.|
+
+---
+
+# Ejemplo de formulario reutilizable
 
 ```django
 {% include "partials/_form_card.html" with form=form titulo="Nuevo registro" cancel_url="app:lista" %}
@@ -148,11 +257,8 @@ test/(modulo): prueba unitaria
 
 ---
 
-## Panel de administración Django
+# Objetivo académico
 
-```
-http://127.0.0.1:8000/admin/
-```
+Este proyecto fue desarrollado con fines académicos para demostrar la implementación de una arquitectura web basada en Django y PostgreSQL.
 
-Todos los modelos están registrados en su respectivo `admin.py`.
-
+Se invita a estudiantes y desarrolladores a utilizar este repositorio como base de aprendizaje, realizar mejoras, implementar nuevas funcionalidades y aplicar buenas prácticas de desarrollo de software.
