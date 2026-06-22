@@ -63,12 +63,16 @@ class Cita(models.Model):
         related_name='citas',
         verbose_name='Vehículo',
     )
+
     paquete = models.ForeignKey(
         Paquete,
         on_delete=models.PROTECT,
         related_name='citas',
         verbose_name='Paquete',
+        null=True,
+        blank=True,
     )
+
     fecha_hora = models.DateTimeField(verbose_name='Fecha y hora')
     estado = models.CharField(
         max_length=15,

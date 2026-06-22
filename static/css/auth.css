@@ -121,3 +121,40 @@ body {
 .auth-link:hover {
     color: var(--auth-asfalto);
 }
+.input-group .toggle-password {
+    border: 1px solid #E4DFD6;
+    border-left: 0;
+    background: #fff;
+    color: #8A847A;
+    border-radius: 0 10px 10px 0;
+    padding: 0.6rem 0.9rem;
+}
+
+.input-group .toggle-password:hover {
+    background: #fff;
+    color: var(--auth-asfalto);
+    border-color: #E4DFD6;
+}
+
+.input-group .toggle-password:focus,
+.input-group .toggle-password:active {
+    background: #fff !important;
+    color: var(--auth-asfalto);
+    border-color: var(--auth-ambar);
+    box-shadow: none !important;
+    outline: none;
+}
+
+.input-group .form-control {
+    border-right: 0;
+}
+
+.input-group .form-control:focus {
+    border-color: var(--auth-ambar);
+    box-shadow: 0 0 0 3px rgba(232, 162, 61, 0.18);
+    z-index: 2;
+}
+
+.input-group .form-control:focus + .toggle-password {
+    border-color: var(--auth-ambar);
+}

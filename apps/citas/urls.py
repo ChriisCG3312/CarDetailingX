@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:pk>/editar/', views.CitaUpdateView.as_view(), name='editar'),
     path('<int:pk>/cancelar/', views.CitaCancelarView.as_view(), name='cancelar'),
     path('<int:pk>/confirmar/', views.CitaConfirmarView.as_view(), name='confirmar'),  # RF-05
+    path('nueva/personalizada/', views.CitaPaquetePersonalizadoCreateView.as_view(), name='paquete_personalizado_crear'),
 
     # Pagos
     path('pagos/nuevo/', views.PagoCreateView.as_view(), name='pago'),

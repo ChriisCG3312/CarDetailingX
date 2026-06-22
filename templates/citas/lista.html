@@ -6,7 +6,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">Citas</h1>
-    <a href="{% url 'citas:crear' %}" class="btn btn-primary">
+    <a href="{% url 'servicios:catalogo' %}" class="btn btn-primary">
       <i class="bi bi-plus-lg me-1"></i> Agendar cita
     </a>
   </div>
@@ -36,7 +36,9 @@
             <th>Paquete</th>
             <th>Fecha y hora</th>
             <th>Estado</th>
-            <th></th>
+            <!-- NUEVA COLUMNA: Seguimiento -->
+            <th>Seguimiento</th>
+            <th></th> <!-- Columna de acciones -->
           </tr>
         </thead>
         <tbody>
@@ -47,7 +49,15 @@
               <td>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</td>
             {% endif %}
             <td>{{ cita.vehiculo }}</td>
-            <td>{{ cita.paquete }}</td>
+            <td>
+              {% if not cita.paquete %}
+                Paquete personalizado
+              {% elif cita.paquete.es_personalizado %}
+                Paquete personalizado
+              {% else %}
+                {{ cita.paquete }}
+              {% endif %}
+            </td>
             <td>{{ cita.fecha_hora|date:"d/m/Y H:i" }}</td>
             <td>
               {% if cita.estado == 'pendiente' %}
@@ -62,6 +72,18 @@
                 <span class="badge text-bg-danger">Cancelada</span>
               {% endif %}
             </td>
+            <!-- NUEVA CELDA: Seguimiento -->
+            <td>
+              {% if cita.seguimiento %}
+                <a href="{% url 'seguimiento:detalle_cliente' cita.seguimiento.pk %}"
+                   class="adm-action" title="Ver estado del servicio">
+                  <i class="bi bi-eye"></i>
+                </a>
+              {% else %}
+                <span class="text-muted small">—</span>
+              {% endif %}
+            </td>
+            <!-- Columna de acciones (botones) -->
             <td class="text-end">
               <div class="d-flex justify-content-end gap-1">
 
@@ -144,7 +166,7 @@
         {% if estado_activo %}No hay citas con ese estado.
         {% else %}No tienes citas registradas todavía.{% endif %}
       </p>
-      <a href="{% url 'citas:crear' %}" class="btn btn-primary mt-1">
+      <a href="{% url 'servicios:catalogo' %}" class="btn btn-primary mt-1">
         Agendar una cita
       </a>
     </div>

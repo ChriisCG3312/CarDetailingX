@@ -15,7 +15,7 @@
         <!-- Panel lateral -->
         <div class="col-md-5 auth-side">
           <i class="bi bi-stars"></i>
-          <h1 class="h3">Únete a Detailing Pro</h1>
+          <h1 class="h3">Únete a CarDetailingX</h1>
           <p>Crea tu cuenta gratis y empieza a agendar el cuidado que tu auto merece.</p>
           <ul>
             <li><i class="bi bi-check-circle-fill"></i>Agenda citas en minutos</li>
@@ -36,14 +36,34 @@
               {% csrf_token %}
               {% for field in form %}
               <div class="mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+                <label class="form-label" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                </label>
+
+                {% if field.field.widget.input_type == 'password' %}
+                <div class="input-group">
+                  {{ field }}
+
+                  <button type="button" class="btn btn-outline-secondary toggle-password"
+                    data-target="{{ field.id_for_label }}">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                {% else %}
                 {{ field }}
+                {% endif %}
+
                 {% if field.help_text %}
                 <div class="form-text">{{ field.help_text }}</div>
                 {% endif %}
+
                 {% if field.errors %}
-                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                <div class="text-danger small mt-1">
+                  {{ field.errors.0 }}
+                </div>
                 {% endif %}
+
               </div>
               {% endfor %}
               <div class="d-grid mt-4">
@@ -63,4 +83,33 @@
     </div>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  document.querySelectorAll('.toggle-password').forEach(btn => {
+
+    btn.addEventListener('click', function () {
+
+      const input = document.getElementById(
+        this.dataset.target
+      );
+
+      const icon = this.querySelector('i');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+
+    });
+
+  });
+
+});
+</script>
 {% endblock %}

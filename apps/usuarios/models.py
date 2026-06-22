@@ -42,7 +42,7 @@ class Usuario(AbstractUser):
     )
 
     telefono = models.CharField(
-        max_length=15,
+        max_length=10,
         blank=True,
         verbose_name='Teléfono',
     )

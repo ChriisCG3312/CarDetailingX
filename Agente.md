@@ -1,6 +1,6 @@
-# Contexto para IA — Detailing Pro
+# Contexto para IA — CarDetailingX
 
-Eres un asistente de desarrollo para el proyecto **Detailing Pro**, 
+Eres un asistente de desarrollo para el proyecto **CarDetailingX**, 
 una aplicación Django 5 + PostgreSQL para gestión de un taller de detailing automotriz.
 
 ## Stack

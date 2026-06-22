@@ -33,34 +33,23 @@ class SeguimientoCrearView(AdminRequiredMixin, CreateView):
     template_name = 'seguimiento/seguimiento_form.html'
     success_url = reverse_lazy('seguimiento:lista')
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        cita_pk = self.request.GET.get('cita')
-        if cita_pk:
-            try:
-                form.fields['cita'].initial = int(cita_pk)
-            except (ValueError, TypeError):
-                pass
-        return form
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        cita_pk = self.request.GET.get('cita')
-        if cita_pk:
-            try:
-                cita = Cita.objects.select_related('cliente', 'paquete', 'vehiculo').get(pk=cita_pk)
-                ctx['cita_preseleccionada'] = str(cita)
-                ctx['cita_pk'] = cita.pk
-            except Cita.DoesNotExist:
-                pass
-        return ctx
+    def get_initial(self):
+        """Preselecciona la cita si llega como ?cita=<pk> en la URL."""
+        initial = super().get_initial()
+        cita_id = self.request.GET.get('cita')
+        if cita_id:
+            initial['cita'] = cita_id
+        return initial
 
     def form_valid(self, form):
         seguimiento = form.save()
         cita = seguimiento.cita
         cita.estado = Cita.Estado.EN_PROCESO
         cita.save()
-        messages.success(self.request, f'Seguimiento creado. Técnico asignado: {seguimiento.tecnico}.')
+        messages.success(
+            self.request,
+            f'Seguimiento creado. Técnico asignado: {seguimiento.tecnico}.'
+        )
         return redirect(self.success_url)
 
     def form_invalid(self, form):
@@ -78,27 +67,15 @@ class SeguimientoActualizarView(TecnicoRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(
-            Seguimiento.objects.select_related('cita__cliente', 'cita__paquete', 'tecnico'),
+            Seguimiento.objects.select_related(
+                'cita__cliente', 'cita__paquete', 'cita__vehiculo', 'tecnico'
+            ).prefetch_related('cita__paquete__servicios'),
             pk=self.kwargs['pk'],
         )
         if self.request.user.es_tecnico and obj.tecnico != self.request.user:
             from django.core.exceptions import PermissionDenied
             raise PermissionDenied
         return obj
-
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.estado == Seguimiento.Estado.ENTREGADO:
-            messages.error(request, 'Este servicio ya fue entregado al cliente y no puede modificarse.')
-            return redirect('seguimiento:lista')
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.estado == Seguimiento.Estado.ENTREGADO:
-            messages.error(request, 'Este servicio ya fue entregado al cliente y no puede modificarse.')
-            return redirect('seguimiento:lista')
-        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         messages.success(self.request, 'Estado actualizado correctamente.')
@@ -109,7 +86,7 @@ class SeguimientoActualizarView(TecnicoRequiredMixin, UpdateView):
         return super().form_invalid(form)
 
 
-# ── RF-03 Lista de seguimientos activos ──────────────────────────────────────
+# ── RF-03 Lista de seguimientos ──────────────────────────────────────────────
 
 class SeguimientoListaView(LoginRequiredMixin, ListView):
     model = Seguimiento
@@ -120,7 +97,8 @@ class SeguimientoListaView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = Seguimiento.objects.select_related(
             'cita__cliente', 'cita__paquete', 'cita__vehiculo', 'tecnico'
-        )
+        ).prefetch_related('cita__paquete__servicios')
+
         if not self.request.GET.get('ver_entregados'):
             qs = qs.exclude(estado=Seguimiento.Estado.ENTREGADO)
 
@@ -144,7 +122,9 @@ class SeguimientoDetalleClienteView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(
-            Seguimiento.objects.select_related('cita__cliente', 'cita__paquete', 'tecnico'),
+            Seguimiento.objects.select_related(
+                'cita__cliente', 'cita__paquete', 'cita__vehiculo', 'tecnico'
+            ).prefetch_related('cita__paquete__servicios'),
             pk=self.kwargs['pk'],
         )
         if self.request.user.es_cliente and obj.cita.cliente != self.request.user:

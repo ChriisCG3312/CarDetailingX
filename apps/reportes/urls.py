@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    MainDashboardView,
     DashboardView,
     ReporteIngresosView,
     ReporteCitasEstadoView,
@@ -27,7 +28,6 @@ urlpatterns = [
         DashboardView.as_view(),
         name="dashboard"
     ),
-
     # ==========================
     # Reporte de ingresos
     # ==========================
